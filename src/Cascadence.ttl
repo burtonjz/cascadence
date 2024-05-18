@@ -5,10 +5,11 @@
 @prefix options: <http://lv2plug.in/ns/ext/options#> .
 @prefix bufSize: <http://lv2plug.in/ns/ext/buf-size#> .
 @prefix atom: <http://lv2plug.in/ns/ext/atom#> .
+@prefix midi: <http://lv2plug.in/ns/ext/midi#> .
 
 <https://github.com/burtonjz/cascadence> a lv2:Plugin, lv2:MidiPlugin, doap:Project ;
-    lv2:binary <Synthesthesia.so> ;
-    doap:name "Synthesthesia" ;
+    lv2:binary <Cascadence.so> ;
+    doap:name "Cascadence" ;
     doap:license <https://opensource.org/licenses/isc> ; 
     doap:maintainer 
         [
