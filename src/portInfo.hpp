@@ -4,8 +4,8 @@
 #include <cstdint>
 
 enum PortInfo : uint32_t {
-    PORT_MIDI_OUT,
     PORT_MIDI_IN,
+    PORT_MIDI_OUT,
     PORT_N_PORTS
 };
 
