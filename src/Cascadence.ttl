@@ -1,0 +1,41 @@
+@prefix lv2: <http://lv2plug.in/ns/lv2core#> .
+@prefix doap: <http://usefulinc.com/ns/doap#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix urid: <http://lv2plug.in/ns/ext/urid#> .
+@prefix options: <http://lv2plug.in/ns/ext/options#> .
+@prefix bufSize: <http://lv2plug.in/ns/ext/buf-size#> .
+@prefix atom: <http://lv2plug.in/ns/ext/atom#> .
+
+<https://github.com/burtonjz/cascadence> a lv2:Plugin, lv2:MidiPlugin, doap:Project ;
+    lv2:binary <Synthesthesia.so> ;
+    doap:name "Synthesthesia" ;
+    doap:license <https://opensource.org/licenses/isc> ; 
+    doap:maintainer 
+        [
+            a foaf:Person ;
+            foaf:name "Jared Burton" ;
+            foaf:mbox <mailto:jared.z.burton@gmail.com> ;
+        ] ;
+    lv2:requiredFeature urid:map ;
+    lv2:optionalFeature options:options ;
+    lv2:optionalFeature bufSize:maxBlockLength ;
+    lv2:optionalFeature lv2:hardRTCapable ;
+    lv2:minorVersion 1 ;
+    lv2:microVersion 0 ;
+    lv2:port
+        [
+            a lv2:InputPort , atom:AtomPort ;
+            lv2:index 0 ;
+            lv2:symbol "midi_in" ;
+            lv2:name "MIDI in" ;
+            atom:bufferType atom:Sequence ;
+            atom:supports midi:MidiEvent ;
+        ] ,
+        [
+            a lv2:OutputPort , atom:AtomPort ;
+            lv2:index 1 ;
+            lv2:symbol "midi_out" ;
+            lv2:name "MIDI out" ;
+            atom:bufferType atom:Sequence ;
+            atom:supports midi:MidiEvent ;
+        ] .
