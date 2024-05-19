@@ -15,14 +15,21 @@
 class Cascadence {
 private:
     // LV2_Log_Logger logger_ ;
-
-    const LV2_Atom_Sequence* midiIn_ ;
-    LV2_Atom_Sequence* midiOut_ ;
-
     LV2_URID_Map* uridMap_ ;
     Urids urids_ ;
 
-    double sampleRate_ ;
+    const LV2_Atom_Sequence* midiIn_ ;
+
+    LV2_Atom_Sequence* midiOut_ ;
+    uint32_t midiOutCapacity_ ;
+
+    const double sampleRate_ ;
+    const double samplePeriod_ ;
+
+    MidiNoteEvent currentPressed_ ;
+    bool isPressed_ ;
+    int framesSincePressed_ ;
+    uint32_t bpm_ ;
 
 public:
     /**
@@ -40,14 +47,35 @@ public:
 
 private:
     /**
+     * @brief ticks the application forward
+     * 
+     */
+    void tick();
+
+    /**
+     * @brief run sequencing logic in the run loop
+     * 
+     * @param start start frame index to sequence
+     * @param end end frame index to sequence
+     */
+    void sequence(const uint32_t start, const uint32_t end);
+
+    /**
+     * @brief handle midi event processing
+     *
+     * @param ev LV2 Atom Event
+    */
+    void processMidi(LV2_Atom_Event* ev);
+
+    /**
      * @brief append a midi event to the stream
      * 
-     * @param mEvent reference midi note event
-     * @param dSemitones number of semitones to shift the note (default = 0)
+     * @param frame frame index to send midi on
      * @param dFrames number of sample frames to shift the note (default = 0)
      * @param dVelocity amount to shift midi velocity value (default = 0)
+     * @param status midi msg status (default = LV2_MIDI_MSG_NOTE_ON)
      */
-    void appendMidi(MidiNoteEvent* mEvent, int dSemitones = 0, int dFrames = 0, int dVelocity = 0);
+    void appendMidi(int frame, int dSemitones = 0, int dVelocity = 0, LV2_Midi_Message_Type status = LV2_MIDI_MSG_NOTE_ON);
 
     /**
      * @brief verifies if a specified midi value is in the bounds 0-127
