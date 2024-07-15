@@ -1,8 +1,10 @@
 #ifndef __CASCADENCE_HPP_
 #define __CASCADENCE_HPP_
 
-#include "urids.hpp"
 #include "midiNoteEvent.hpp"
+#include "urids.hpp"
+#include "Sequence.hpp"
+#include "MidiController.hpp"
 
 #include <lv2/lv2plug.in/ns/lv2core/lv2.h>
 #include <lv2/lv2plug.in/ns/ext/log/log.h>
@@ -18,18 +20,13 @@ private:
     LV2_URID_Map* uridMap_ ;
     Urids urids_ ;
 
-    const LV2_Atom_Sequence* midiIn_ ;
-
-    LV2_Atom_Sequence* midiOut_ ;
-    uint32_t midiOutCapacity_ ;
-
     const double sampleRate_ ;
     const double samplePeriod_ ;
 
-    MidiNoteEvent currentPressed_ ;
-    bool isPressed_ ;
-    int framesSincePressed_ ;
     uint32_t bpm_ ;
+
+    Sequence Sequence_ ;
+    MidiController MidiController_ ;
 
 public:
     /**
@@ -59,23 +56,6 @@ private:
      * @param end end frame index to sequence
      */
     void sequence(const uint32_t start, const uint32_t end);
-
-    /**
-     * @brief handle midi event processing
-     *
-     * @param ev LV2 Atom Event
-    */
-    void processMidi(LV2_Atom_Event* ev);
-
-    /**
-     * @brief append a midi event to the stream
-     * 
-     * @param frame frame index to send midi on
-     * @param dFrames number of sample frames to shift the note (default = 0)
-     * @param dVelocity amount to shift midi velocity value (default = 0)
-     * @param status midi msg status (default = LV2_MIDI_MSG_NOTE_ON)
-     */
-    void appendMidi(int frame, int dSemitones = 0, int dVelocity = 0, LV2_Midi_Message_Type status = LV2_MIDI_MSG_NOTE_ON);
 
     /**
      * @brief verifies if a specified midi value is in the bounds 0-127
