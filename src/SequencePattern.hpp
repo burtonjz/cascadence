@@ -5,7 +5,7 @@
 #include <cstdint>
 
 struct SequencePattern {
-    uint8_t notes[CONFIG_MAX_SEQUENCE_SIZE] ; // in scale positions
+    int notes[CONFIG_MAX_SEQUENCE_SIZE] ; // in scale positions
     float durations[CONFIG_MAX_SEQUENCE_SIZE] ; // in beats
     int length ;
 };

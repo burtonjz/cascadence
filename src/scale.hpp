@@ -14,6 +14,7 @@ private:
     Note tonic_ ;
     ScaleType type_ ;
     std::array<Note,MAX_NOTES> notes_ ;
+    size_t notesSize_ ;
 
 public:
     /**
@@ -49,9 +50,10 @@ public:
      * @brief get closest scale value. Rounds down.
      * 
      * @param v reference midi value
+     * @param offset scale position offset
      * @return uint8_t midi value
      */
-    uint8_t getNearestScaleMidiNote(uint8_t v) ;
+    uint8_t getNearestScaleMidiNote(uint8_t v, int offset = 0) ;
 
 private:
     /**
@@ -63,9 +65,9 @@ private:
      * @brief Get the midi octave. *Midi note 0 corresponds with octave -1
      * 
      * @param v midi value
-     * @return uint8_t 
+     * @return int octave number
      */
-    uint8_t getMidiOctave(uint8_t v);
+    int getMidiOctave(uint8_t v);
 
     /**
      * @brief get the Note corresponding to a midi note
@@ -82,7 +84,13 @@ private:
      * @param octave midi octave (starts at -1) 
      * @return uint8_t midi value
      */
-    uint8_t getMidiValue(Note n, uint8_t octave);
+    uint8_t getMidiValue(Note n, int octave);
+
+    /**
+     * @brief true modulo (needed for negative numbers
+     * 
+     */
+    int modulo(int a, int b);
 
 };
 

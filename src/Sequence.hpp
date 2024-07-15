@@ -55,11 +55,18 @@ public:
     void setPattern(SequencePattern pattern);
 
     /**
-     * @brief set the midi event status message type
+     * @brief Get a pointer to the Scale object
      * 
-     * @param midiStatus midi status value
+     * @return Scale* 
      */
-    void setMidiStatus(LV2_Midi_Message_Type midiStatus);
+    Scale* getScale();
+
+    /**
+     * @brief Set the beats per minute of the sequence
+     * 
+     * @param bpm beats per minute
+     */
+    void setBpm(int bpm) ;
 
     /**
      * @brief updates the sequence based off the target message
@@ -81,6 +88,13 @@ public:
     void tick(); // frame_ += 1 ;
 
 private:
+    /**
+     * @brief set the midi event status message type
+     * 
+     * @param midiStatus midi status value
+     */
+    void setMidiStatus(LV2_Midi_Message_Type midiStatus);
+
     /**
      * @brief calculate start and end frames given current configuration
      * 

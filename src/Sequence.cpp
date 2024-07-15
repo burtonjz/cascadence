@@ -1,8 +1,9 @@
 #include "Sequence.hpp"
 #include "MidiController.hpp"
-#include <iostream>
+#include "config.hpp"
+#include "scale.hpp"
 #include <lv2/lv2plug.in/ns/ext/midi/midi.h>
-
+#include <iostream>
 
 Sequence::Sequence(const double* sampleRate):
     sampleRate_(sampleRate),
@@ -39,15 +40,16 @@ void Sequence::setMidiController(MidiController* ptr){
 
 void Sequence::setPattern(SequencePattern pattern){
     pattern_ = pattern ;
+    calculateFrameTiming() ;
+}
 
-    int framesPerBeat = 60.0 * *sampleRate_ / bpm_ ;
+Scale* Sequence::getScale(){
+    return &Scale_ ;
+}
 
-    for (int i = 0 ; i < pattern_.length ; ++i ){
-        if ( i == 0 ) startFrames[i] = 0.0 ;
-        else startFrames[i] = endFrames[i-1] ;
-        endFrames[i] = startFrames[i] + framesPerBeat * pattern_.durations[i] ;
-        std::cout << "index: " << i << ", startFrame: " << startFrames[i] << ", endFrame: " << endFrames[i] << std::endl ; 
-    }
+void Sequence::setBpm(int bpm){
+    bpm_ = bpm ;
+    calculateFrameTiming() ;
 }
 
 void Sequence::setMidiStatus(LV2_Midi_Message_Type midiStatus){
@@ -55,7 +57,6 @@ void Sequence::setMidiStatus(LV2_Midi_Message_Type midiStatus){
 }
 
 void Sequence::setRootNote(MidiNoteEvent m){
-    std::cout << "Setting Root Note." << std::endl ;
     Root_ = m ;
     switch(Root_.msg[0]){
     case LV2_MIDI_MSG_NOTE_ON:
@@ -76,23 +77,36 @@ void Sequence::sequenceMidiNoteEvents(){
 
     for(int j = 0 ; j < pattern_.length ; ++j ){
         if ( isPressed_ && frame_ == startFrames[j]){
-            out.event = Root_.event ;
-            out.msg[0] = LV2_MIDI_MSG_NOTE_ON ;
-            out.msg[1] = Root_.msg[1] + pattern_.notes[j] ;
-            out.msg[2] = Root_.msg[2] ;
-            std::cout << "appending event: " << static_cast<int>(out.msg[0]) << " " << static_cast<int>(out.msg[1]) << " " << static_cast<int>(out.msg[2]) << std::endl ;
-            if(controller_ptr_) controller_ptr_->append(out);
+            uint8_t v = Scale_.getNearestScaleMidiNote(Root_.msg[1], pattern_.notes[j]) ;
+            if ( v != CONFIG_NULL_MIDI_VALUE ) {
+                out.event = Root_.event ;
+                out.msg[0] = LV2_MIDI_MSG_NOTE_ON ;
+                out.msg[1] = v ;
+                out.msg[2] = Root_.msg[2] ;
+                if(controller_ptr_) controller_ptr_->append(out);
+            }
         } else if ( frame_ == endFrames[j]){
-            out.event = Root_.event ;
-            out.msg[0] = LV2_MIDI_MSG_NOTE_OFF ;
-            out.msg[1] = Root_.msg[1] + pattern_.notes[j] ;
-            out.msg[2] = Root_.msg[2] ;
-            std::cout << "appending event: " << static_cast<int>(out.msg[0]) << " " << static_cast<int>(out.msg[1]) << " " << static_cast<int>(out.msg[2]) << std::endl ;
-            if(controller_ptr_) controller_ptr_->append(out);
+            uint8_t v = Scale_.getNearestScaleMidiNote(Root_.msg[1], pattern_.notes[j]) ;
+            if ( v != CONFIG_NULL_MIDI_VALUE ){
+                out.event = Root_.event ;
+                out.msg[0] = LV2_MIDI_MSG_NOTE_OFF ;
+                out.msg[1] = v ;
+                out.msg[2] = Root_.msg[2] ;
+                if(controller_ptr_) controller_ptr_->append(out);
+            }
         }
     }
 }
 
+void Sequence::calculateFrameTiming(){
+    int framesPerBeat = 60.0 * *sampleRate_ / bpm_ ;
+    std::cout << "sample rate = " << *sampleRate_ << " bpm = " << bpm_ << " framesPerBeat = " << framesPerBeat << std::endl ;
+    for (int i = 0 ; i < pattern_.length ; ++i ){
+        if ( i == 0 ) startFrames[i] = 0.0 ;
+        else startFrames[i] = endFrames[i-1] ;
+        endFrames[i] = startFrames[i] + framesPerBeat * pattern_.durations[i] ;
+    }
+}
 void Sequence::tick(){
     frame_ += 1 ;
     if ( frame_ > endFrames[pattern_.length - 1] ){

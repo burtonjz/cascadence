@@ -38,14 +38,33 @@ Cascadence::Cascadence(const double sampleRate, const LV2_Feature *const *featur
 
 
     // initialize composite objects
+
+    Scale* scale = Sequence_.getScale() ;
+    scale->setScale(Note::D,ScaleType::CHROMATIC);
     SequencePattern pattern ;
-    pattern.durations[0] = 2.5 ;
-    pattern.durations[1] = 2.5 ;
-    pattern.durations[2] = 2.5 ;
-    pattern.notes[0] = 1 ;
-    pattern.notes[1] = 3 ;
-    pattern.notes[2] = 5 ;
-    pattern.length = 3 ;
+    pattern.notes[0] = 0 ;
+    pattern.notes[1] = 0 ;
+    pattern.notes[2] = 12 ;
+    pattern.notes[3] = 7 ;
+    pattern.notes[4] = 6 ;
+    pattern.notes[5] = 5 ;
+    pattern.notes[6] = 3 ;
+    pattern.notes[7] = 0 ;
+    pattern.notes[8] = 3 ;
+    pattern.notes[9] = 5 ;
+    pattern.durations[0] = .5 ;
+    pattern.durations[1] = .5 ;
+    pattern.durations[2] = 1 ;
+    pattern.durations[3] = 1.5 ;
+    pattern.durations[4] = 1 ;
+    pattern.durations[5] = 1 ;
+    pattern.durations[6] = 1 ;
+    pattern.durations[7] = .5 ;
+    pattern.durations[8] = .5 ;
+    pattern.durations[9] = .5 ;
+    pattern.length = 10 ;
+    Sequence_.setBpm(214);
+
     Sequence_.setPattern(pattern);
     Sequence_.setMidiController(&MidiController_);
 
