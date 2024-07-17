@@ -13,9 +13,8 @@ class Scale {
 private:
     Note tonic_ ;
     ScaleType type_ ;
-    std::array<Note,MAX_NOTES> notes_ ;
-    std::array<uint8_t,MAX_NOTES> uNotes_ ;
-    size_t notesSize_ ;
+    std::array<uint8_t,MAX_NOTES> scaleNotes_ ;
+    size_t scaleLength_ ;
 
 public:
     /**
@@ -41,18 +40,11 @@ public:
     void setScale(Note tonic, ScaleType typ);
 
     /**
-     * @brief Get the Scale array (as Notes)
-     * 
-     * @return const std::pair<size_t,Note*> 
-     */
-    const std::pair<Note*,size_t> getScale() ;
-
-    /**
      * @brief Get the Scale array (as Midi Values)
      * 
      * @return const std::pair<size_t,Note*> 
      */
-    const std::pair<uint8_t*,size_t> getUScale() ;
+    const std::pair<uint8_t*,size_t> getScale() ;
 
     /**
      * @brief get closest scale value. Rounds down.
@@ -68,31 +60,6 @@ private:
      * @brief populates the notes array with the currently defined scale
      */
     void populateScale();
-
-    /**
-     * @brief Get the midi octave. *Midi note 0 corresponds with octave -1
-     * 
-     * @param v midi value
-     * @return int octave number
-     */
-    int getMidiOctave(uint8_t v);
-
-    /**
-     * @brief get the Note corresponding to a midi note
-     * 
-     * @param v midi value
-     * @return Note
-     */
-    Note getMidiNoteName(uint8_t v);
-    
-    /**
-     * @brief Get the Midi Value from the note/octave
-     * 
-     * @param n note
-     * @param octave midi octave (starts at -1) 
-     * @return uint8_t midi value
-     */
-    uint8_t getMidiValue(Note n, int octave);
 
     /**
      * @brief true modulo (needed for negative numbers

@@ -1,5 +1,6 @@
 #include "Cascadence.hpp"
 #include "MidiController.hpp"
+#include "SequencePattern.hpp"
 #include "config.hpp"
 #include "midiNoteEvent.hpp"
 #include "portInfo.hpp"
@@ -40,6 +41,22 @@ Cascadence::Cascadence(const double sampleRate, const LV2_Feature *const *featur
     // initialize composite objects
 
     Scale* scale = Sequence_.getScale() ;
+    // scale->setScale(Note::FSHARP,ScaleType::MAJOR);
+    // SequencePattern pattern ;
+    // pattern.notes[0] = 0 ;
+    // pattern.notes[1] = 2 ;
+    // pattern.notes[2] = 4 ;
+    // pattern.notes[3] = 0 ;
+    // pattern.notes[4] = -1 ;
+    // pattern.notes[5] = -3 ;
+    // pattern.durations[0] = 1 ;
+    // pattern.durations[1] = 1 ;
+    // pattern.durations[2] = 1 ;
+    // pattern.durations[3] = 1 ;
+    // pattern.durations[4] = 1 ;
+    // pattern.durations[5] = 1 ;
+    // pattern.length = 6 ;
+
     scale->setScale(Note::D,ScaleType::CHROMATIC);
     SequencePattern pattern ;
     pattern.notes[0] = 0 ;

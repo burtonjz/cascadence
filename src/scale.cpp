@@ -6,7 +6,7 @@
 #include <iostream>
 
 Scale::Scale(Note tonic, ScaleType typ):
-    notes_()
+    scaleNotes_()
 {
     setScale(tonic,typ);
 }
@@ -21,70 +21,45 @@ void Scale::setScale(Note tonic, ScaleType typ){
     populateScale();
 }
 
-const std::pair<Note*, size_t> Scale::getScale(){
-    return std::make_pair(notes_.data(), notesSize_);
-}
-
-const std::pair<uint8_t*, size_t> Scale::getUScale(){
-    return std::make_pair(uNotes_.data(), notesSize_);
+const std::pair<uint8_t*, size_t> Scale::getScale(){
+    return std::make_pair(scaleNotes_.data(), scaleLength_);
 }
 
 void Scale::populateScale(){
     // if scale isn't set, create dummy array
     if (tonic_ == Note::NULL_NOTE){
-        for (int i = 0; i < notesSize_; ++i){
-            uNotes_[i] = CONFIG_NULL_MIDI_VALUE ;
-            notes_[i] = Note::NULL_NOTE ;
+        for (int i = 0; i < scaleLength_; ++i){
+            scaleNotes_[i] = CONFIG_NULL_MIDI_VALUE ;
         }
         return ;
     }
 
     // otherwise, populate scale based off the scale intervals
     auto intervals = getScaleIntervals(type_);
-    notesSize_ = intervals.second ;
-    size_t i = 0 ;
-    
-    for (; i < notesSize_ ; ++i ){
-        uNotes_[i] = static_cast<uint8_t>(tonic_) + intervals.first[i] ;
-        notes_[i] = static_cast<Note>(uNotes_[i]);
+    scaleLength_ = intervals.second ;
+    for (size_t i = 0 ; i < scaleLength_ ; ++i ){
+        scaleNotes_[i] = modulo(static_cast<uint8_t>(tonic_) + intervals.first[i], 12);
     }
+    std::sort(scaleNotes_.begin(),scaleNotes_.begin() + scaleLength_);
 }
 
-// midi=61 noteID=1 offset=0 offsetNoteID=2 idx=0 mIdx=0 octave=4 outputMidi=62
 uint8_t Scale::getNearestScaleMidiNote(uint8_t v, int offset ){
-    Note inputNote = getMidiNoteName(v);
+    uint8_t baseInput = modulo(v,12);
+    uint8_t inputOctave = (v / 12) - 1 ;
 
-    // find closest midi value in scale array
-    uint8_t* it = std::lower_bound(uNotes_.begin(), uNotes_.begin() + notesSize_ - 1, static_cast<uint8_t>(inputNote));
-    size_t inputIdx = std::distance(uNotes_.begin(), it);
+    // find closest input index
+    uint8_t* it = std::lower_bound(scaleNotes_.begin(), scaleNotes_.begin() + scaleLength_ - 1, baseInput);
+    int closestIdx = std::distance(scaleNotes_.begin(), it);
 
-    // get the index of the offset value
-    size_t outputIdx = inputIdx + offset ;
-    size_t outputBoundedIdx = modulo(outputIdx, notesSize_);
+    // calculate output index
+    size_t outputIdx = modulo(closestIdx + offset, static_cast<int>(scaleLength_)) ;
 
-    // get the appropriate octave
-    int octave = getMidiOctave(v) ;
-    if( outputIdx != outputBoundedIdx ) octave += std::floor(static_cast<float>(outputIdx) / notesSize_) ; 
+    // calculate output octave
+    int outputOctave = inputOctave + (closestIdx + offset) / static_cast<float>(scaleLength_);
 
-    uint8_t offsetValue = uNotes_[outputBoundedIdx] - static_cast<uint8_t>(tonic_);
-    Note outputNote = getMidiNoteName(v + offsetValue);
+    uint8_t output = static_cast<uint8_t>(scaleNotes_[outputIdx]) + 12 * (outputOctave + 1) ;
 
-    return getMidiValue(outputNote,octave);
-}
-
-int Scale::getMidiOctave(uint8_t v){
-    return ( v / 12 ) - 1 ;
-}
-
-Note Scale::getMidiNoteName(uint8_t v){
-    return static_cast<Note>( v % 12 ) ;
-}
-
-uint8_t Scale::getMidiValue(Note n, int octave){
-    int i = static_cast<uint8_t>(n) + (12 * (octave + 1) );
-    if ( i < 0 || i > 127 ) return CONFIG_NULL_MIDI_VALUE ;
-
-    return i ;
+    return output ;
 }
 
 int Scale::modulo(int a, int b){
