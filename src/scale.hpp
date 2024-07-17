@@ -14,6 +14,7 @@ private:
     Note tonic_ ;
     ScaleType type_ ;
     std::array<Note,MAX_NOTES> notes_ ;
+    std::array<uint8_t,MAX_NOTES> uNotes_ ;
     size_t notesSize_ ;
 
 public:
@@ -40,11 +41,18 @@ public:
     void setScale(Note tonic, ScaleType typ);
 
     /**
-     * @brief Get the Scale object
+     * @brief Get the Scale array (as Notes)
      * 
      * @return const std::pair<size_t,Note*> 
      */
     const std::pair<Note*,size_t> getScale() ;
+
+    /**
+     * @brief Get the Scale array (as Midi Values)
+     * 
+     * @return const std::pair<size_t,Note*> 
+     */
+    const std::pair<uint8_t*,size_t> getUScale() ;
 
     /**
      * @brief get closest scale value. Rounds down.
