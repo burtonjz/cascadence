@@ -41,47 +41,13 @@ Cascadence::Cascadence(const double sampleRate, const LV2_Feature *const *featur
     // initialize composite objects
 
     Scale* scale = Sequence_.getScale() ;
-    // scale->setScale(Note::FSHARP,ScaleType::MAJOR);
-    // SequencePattern pattern ;
-    // pattern.notes[0] = 0 ;
-    // pattern.notes[1] = 2 ;
-    // pattern.notes[2] = 4 ;
-    // pattern.notes[3] = 0 ;
-    // pattern.notes[4] = -1 ;
-    // pattern.notes[5] = -3 ;
-    // pattern.durations[0] = 1 ;
-    // pattern.durations[1] = 1 ;
-    // pattern.durations[2] = 1 ;
-    // pattern.durations[3] = 1 ;
-    // pattern.durations[4] = 1 ;
-    // pattern.durations[5] = 1 ;
-    // pattern.length = 6 ;
-
     scale->setScale(Note::D,ScaleType::CHROMATIC);
     SequencePattern pattern ;
-    pattern.notes[0] = 0 ;
-    pattern.notes[1] = 0 ;
-    pattern.notes[2] = 12 ;
-    pattern.notes[3] = 7 ;
-    pattern.notes[4] = 6 ;
-    pattern.notes[5] = 5 ;
-    pattern.notes[6] = 3 ;
-    pattern.notes[7] = 0 ;
-    pattern.notes[8] = 3 ;
-    pattern.notes[9] = 5 ;
-    pattern.durations[0] = .5 ;
-    pattern.durations[1] = .5 ;
-    pattern.durations[2] = 1 ;
-    pattern.durations[3] = 1.5 ;
-    pattern.durations[4] = 1 ;
-    pattern.durations[5] = 1 ;
-    pattern.durations[6] = 1 ;
-    pattern.durations[7] = .5 ;
-    pattern.durations[8] = .5 ;
-    pattern.durations[9] = .5 ;
-    pattern.length = 10 ;
+    pattern.setSize(10) ;
+    pattern.setArray<int>(pattern.notes, {0,0,12,7,6,5,3,0,3,5});
+    pattern.setArray<float>(pattern.start, {0,0.5,1.0,2.0,3.5,4.5,5.5,6.5,7.0,7.5});
+    pattern.setArray<float>(pattern.end, {0.5,1,2,3.5,4.5,5.5,6.5,7.0,7.5,8.0});
     Sequence_.setBpm(214);
-
     Sequence_.setPattern(pattern);
     Sequence_.setMidiController(&MidiController_);
 

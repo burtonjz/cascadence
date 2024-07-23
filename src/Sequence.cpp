@@ -82,7 +82,7 @@ const MidiNoteEvent Sequence::getRootNote() const {
 void Sequence::sequenceMidiNoteEvents(){
     MidiNoteEvent out ;
 
-    for(int j = 0 ; j < pattern_.length ; ++j ){
+    for(int j = 0 ; j < pattern_.size() ; ++j ){
         if ( isPressed_ && frame_ == startFrames[j]){
             uint8_t v = Scale_.getNearestScaleMidiNote(root_.msg[1], pattern_.notes[j]) ;
             if ( v != CONFIG_NULL_MIDI_VALUE && !controller_ptr_->isMidiOn(v) ) {
@@ -107,16 +107,14 @@ void Sequence::sequenceMidiNoteEvents(){
 
 void Sequence::calculateFrameTiming(){
     int framesPerBeat = 60.0 * *sampleRate_ / bpm_ ;
-    std::cout << "sample rate = " << *sampleRate_ << " bpm = " << bpm_ << " framesPerBeat = " << framesPerBeat << std::endl ;
-    for (int i = 0 ; i < pattern_.length ; ++i ){
-        if ( i == 0 ) startFrames[i] = 0.0 ;
-        else startFrames[i] = endFrames[i-1] ;
-        endFrames[i] = startFrames[i] + framesPerBeat * pattern_.durations[i] ;
+    for (int i = 0 ; i < pattern_.size() ; ++i ){
+        startFrames[i] = pattern_.start[i] * framesPerBeat ;
+        endFrames[i] = pattern_.end[i] * framesPerBeat ;
     }
 }
 void Sequence::tick(){
     frame_ += 1 ;
-    if ( frame_ > endFrames[pattern_.length - 1] ){
+    if ( frame_ > endFrames[pattern_.size() - 1] ){
         frame_ = 0 ;
     }
 }
