@@ -78,7 +78,7 @@ void Sequence::sequenceMidiNoteEvents(){
     for(int j = 0 ; j < pattern_.length ; ++j ){
         if ( isPressed_ && frame_ == startFrames[j]){
             uint8_t v = Scale_.getNearestScaleMidiNote(Root_.msg[1], pattern_.notes[j]) ;
-            if ( v != CONFIG_NULL_MIDI_VALUE ) {
+            if ( v != CONFIG_NULL_MIDI_VALUE && !controller_ptr_->isMidiOn(v) ) {
                 out.event = Root_.event ;
                 out.msg[0] = LV2_MIDI_MSG_NOTE_ON ;
                 out.msg[1] = v ;
@@ -87,7 +87,7 @@ void Sequence::sequenceMidiNoteEvents(){
             }
         } else if ( frame_ == endFrames[j]){
             uint8_t v = Scale_.getNearestScaleMidiNote(Root_.msg[1], pattern_.notes[j]) ;
-            if ( v != CONFIG_NULL_MIDI_VALUE ){
+            if ( v != CONFIG_NULL_MIDI_VALUE && controller_ptr_->isMidiOn(v) ){
                 out.event = Root_.event ;
                 out.msg[0] = LV2_MIDI_MSG_NOTE_OFF ;
                 out.msg[1] = v ;

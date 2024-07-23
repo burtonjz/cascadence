@@ -2,6 +2,8 @@
 #define __MIDI_WRITER_HPP_
 
 #include <lv2/lv2plug.in/ns/ext/midi/midi.h>
+#include <cstdint>
+#include <array>
 
 #include "config.hpp"
 #include "midiNoteEvent.hpp"
@@ -16,6 +18,7 @@ private:
     const LV2_Atom_Sequence* input_ ;
     LV2_Atom_Sequence* output_ ;
     uint32_t capacity_ ;
+    std::array<uint8_t, CONFIG_MAX_SEQUENCE_SIZE> activeNotes_ ;
 public:
     MidiController();
 
@@ -69,7 +72,15 @@ public:
      */
     void append(MidiNoteEvent m);
 
+    /**
+     * @brief checks active notes for the specified midi value
+     * 
+     * @param midiVal midi value (0-127)
+     */
+    bool isMidiOn(uint8_t midiVal);
+
 private:
+    void updateActive(MidiNoteEvent m);
 
 };
 

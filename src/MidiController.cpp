@@ -1,22 +1,27 @@
 #include "MidiController.hpp"
 #include "Sequence.hpp"
 
-#include <cstddef>
 #include <lv2/lv2plug.in/ns/ext/atom/util.h>
+#include <cstddef>
+#include <iostream>
 
 
 MidiController::MidiController():
     sequence_ptr_(nullptr),
     input_(nullptr),
     output_(nullptr),
-    capacity_(0)
-{}
+    capacity_(0),
+    activeNotes_()
+{
+    activeNotes_.fill(CONFIG_NULL_MIDI_VALUE);
+}
 
 void MidiController::setSequence(Sequence* ptr){
     sequence_ptr_ = ptr ;
 }
 
 void MidiController::append(MidiNoteEvent m){
+    updateActive(m);
     lv2_atom_sequence_append_event(
         output_,
         capacity_,
@@ -69,4 +74,35 @@ void MidiController::processInput(LV2_Atom_Event* ev){
                 lv2_atom_sequence_append_event(output_, capacity_, ev);
                 break ;
             }
+}
+
+bool MidiController::isMidiOn(uint8_t midiVal){
+    for ( int i = 0 ; i < activeNotes_.size() ; ++i ){
+        if ( activeNotes_[i] == midiVal ) return true ;
+    }
+    return false ;
+}
+
+void MidiController::updateActive(MidiNoteEvent m){
+    switch(m.msg[0]){
+        case LV2_MIDI_MSG_NOTE_ON:
+            for ( int i = 0 ; i < activeNotes_.size() ; ++i ){
+                if ( activeNotes_[i] == CONFIG_NULL_MIDI_VALUE ){
+                    activeNotes_[i] = m.msg[1] ;
+                    return ;
+                }
+            }
+            std::cout << "[MidiController] WARN: no null midi notes in array, could not append " << static_cast<int>(m.msg[1]) << std::endl ;
+            break ;
+        case LV2_MIDI_MSG_NOTE_OFF:
+            for ( int i = 0 ; i < activeNotes_.size() ; ++i ){
+                if ( activeNotes_[i] == m.msg[1] ){
+                    activeNotes_[i] = CONFIG_NULL_MIDI_VALUE ;
+                    return ;
+                }
+            }
+            break ;
+        default:
+            return ;
+    }
 }
