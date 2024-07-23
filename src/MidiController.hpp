@@ -79,6 +79,11 @@ public:
      */
     bool isMidiOn(uint8_t midiVal);
 
+    /**
+     * @brief append midi off message for all active notes
+     */
+    void appendAllMidiOff();
+
 private:
     void updateActive(MidiNoteEvent m);
 

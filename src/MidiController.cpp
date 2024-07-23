@@ -83,6 +83,21 @@ bool MidiController::isMidiOn(uint8_t midiVal){
     return false ;
 }
 
+void MidiController::appendAllMidiOff(){
+    for (int i = 0 ; i < activeNotes_.size() ; ++i ){
+        if ( activeNotes_[i] != CONFIG_NULL_MIDI_VALUE && sequence_ptr_ ){
+            MidiNoteEvent m , root = sequence_ptr_->getRootNote() ;
+            m.event.time.frames = root.event.time.frames ;
+            m.event.body.type = root.event.body.type ;
+            m.event.body.size = root.event.body.size ;
+            m.msg[0] = LV2_MIDI_MSG_NOTE_OFF ;
+            m.msg[1] = activeNotes_[i] ;
+            m.msg[2] = 0 ;
+            append(m);
+        }
+    }
+}
+
 void MidiController::updateActive(MidiNoteEvent m){
     switch(m.msg[0]){
         case LV2_MIDI_MSG_NOTE_ON:

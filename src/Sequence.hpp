@@ -27,7 +27,7 @@ private:
     bool isPressed_ ;
 
     Scale Scale_ ;
-    MidiNoteEvent Root_ ;
+    MidiNoteEvent root_ ;
     int frame_ ;
     int bpm_ ;
 
@@ -74,6 +74,11 @@ public:
      * @param midiMsg midi message
      */
     void setRootNote(MidiNoteEvent m);
+
+    /**
+     * @brief getter for root note
+     */
+    const MidiNoteEvent getRootNote() const ;
 
     /**
      * @brief perform sequencing for all midi note events

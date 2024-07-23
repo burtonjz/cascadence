@@ -13,7 +13,7 @@ Sequence::Sequence(const double* sampleRate):
     endFrames(),
     isPressed_(false),
     Scale_(),
-    Root_(),
+    root_(),
     frame_(0),
     bpm_(CONFIG_DEFAULT_BPM)
 {
@@ -27,7 +27,7 @@ Sequence::Sequence(const double* sampleRate, Scale scale, int bpm, SequencePatte
     endFrames(),
     isPressed_(false),
     Scale_(scale),
-    Root_(),
+    root_(),
     frame_(0),
     bpm_(bpm)
 {    
@@ -53,12 +53,12 @@ void Sequence::setBpm(int bpm){
 }
 
 void Sequence::setMidiStatus(LV2_Midi_Message_Type midiStatus){
-    Root_.msg[0] = midiStatus ;
+    root_.msg[0] = midiStatus ;
 }
 
 void Sequence::setRootNote(MidiNoteEvent m){
-    Root_ = m ;
-    switch(Root_.msg[0]){
+    root_ = m ;
+    switch(root_.msg[0]){
     case LV2_MIDI_MSG_NOTE_ON:
         isPressed_ = true ;
         frame_ = 0 ;
@@ -66,10 +66,17 @@ void Sequence::setRootNote(MidiNoteEvent m){
     case LV2_MIDI_MSG_NOTE_OFF:
         isPressed_ = false ;
         frame_ = 0 ;
+        if (controller_ptr_){
+            controller_ptr_->appendAllMidiOff() ;
+        }
         break ;
     default:
         break ;
     }
+}
+
+const MidiNoteEvent Sequence::getRootNote() const {
+    return root_ ;
 }
 
 void Sequence::sequenceMidiNoteEvents(){
@@ -77,21 +84,21 @@ void Sequence::sequenceMidiNoteEvents(){
 
     for(int j = 0 ; j < pattern_.length ; ++j ){
         if ( isPressed_ && frame_ == startFrames[j]){
-            uint8_t v = Scale_.getNearestScaleMidiNote(Root_.msg[1], pattern_.notes[j]) ;
+            uint8_t v = Scale_.getNearestScaleMidiNote(root_.msg[1], pattern_.notes[j]) ;
             if ( v != CONFIG_NULL_MIDI_VALUE && !controller_ptr_->isMidiOn(v) ) {
-                out.event = Root_.event ;
+                out.event = root_.event ;
                 out.msg[0] = LV2_MIDI_MSG_NOTE_ON ;
                 out.msg[1] = v ;
-                out.msg[2] = Root_.msg[2] ;
+                out.msg[2] = root_.msg[2] ;
                 if(controller_ptr_) controller_ptr_->append(out);
             }
         } else if ( frame_ == endFrames[j]){
-            uint8_t v = Scale_.getNearestScaleMidiNote(Root_.msg[1], pattern_.notes[j]) ;
+            uint8_t v = Scale_.getNearestScaleMidiNote(root_.msg[1], pattern_.notes[j]) ;
             if ( v != CONFIG_NULL_MIDI_VALUE && controller_ptr_->isMidiOn(v) ){
-                out.event = Root_.event ;
+                out.event = root_.event ;
                 out.msg[0] = LV2_MIDI_MSG_NOTE_OFF ;
                 out.msg[1] = v ;
-                out.msg[2] = Root_.msg[2] ;
+                out.msg[2] = root_.msg[2] ;
                 if(controller_ptr_) controller_ptr_->append(out);
             }
         }
