@@ -24,6 +24,7 @@ private:
     SequencePattern pattern_ ;
     std::array<int, CONFIG_MAX_SEQUENCE_SIZE> startFrames ;
     std::array<int, CONFIG_MAX_SEQUENCE_SIZE> endFrames ;
+    float duration_ ;
     bool isPressed_ ;
 
     Scale Scale_ ;

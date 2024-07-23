@@ -37,20 +37,33 @@ Cascadence::Cascadence(const double sampleRate, const LV2_Feature *const *featur
 
     urids_.initialize(uridMap_);
 
-
-    // initialize composite objects
-
+    // Testing rests and chords
     Scale* scale = Sequence_.getScale() ;
-    scale->setScale(Note::D,ScaleType::CHROMATIC);
+    scale->setScale(Note::D, ScaleType::MAJOR) ;
     SequencePattern pattern ;
-    pattern.setSize(10) ;
-    pattern.setArray<int>(pattern.notes, {0,0,12,7,6,5,3,0,3,5});
-    pattern.setArray<float>(pattern.start, {0,0.5,1.0,2.0,3.5,4.5,5.5,6.5,7.0,7.5});
-    pattern.setArray<float>(pattern.end, {0.5,1,2,3.5,4.5,5.5,6.5,7.0,7.5,8.0});
-    Sequence_.setBpm(214);
+    pattern.setSize(5) ;
+    pattern.duration = 6.0 ;
+    pattern.setArray<int>(pattern.notes, {0,2,4,0,4});
+    pattern.setArray<float>(pattern.start, {0,1,2,3,3});
+    pattern.setArray<float>(pattern.end, {0.5,1.5,2.5,5,5});
+
+    
+    Sequence_.setBpm(120);
+    
+    // Megalovania
+    // Scale* scale = Sequence_.getScale() ;
+    // scale->setScale(Note::D,ScaleType::CHROMATIC);
+    // SequencePattern pattern ;
+    // pattern.setSize(10) ;
+    // pattern.setArray<int>(pattern.notes, {0,0,12,7,6,5,3,0,3,5});
+    // pattern.setArray<float>(pattern.start, {0,0.5,1.0,2.0,3.5,4.5,5.5,6.5,7.0,7.5});
+    // pattern.setArray<float>(pattern.end, {0.5,1,2,3.5,4.5,5.5,6.5,7.0,7.5,8.0});
+
+    // Sequence_.setBpm(214);
+
+
     Sequence_.setPattern(pattern);
     Sequence_.setMidiController(&MidiController_);
-
     MidiController_.setSequence(&Sequence_);
 }
 

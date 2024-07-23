@@ -107,6 +107,7 @@ void Sequence::sequenceMidiNoteEvents(){
 
 void Sequence::calculateFrameTiming(){
     int framesPerBeat = 60.0 * *sampleRate_ / bpm_ ;
+    duration_ = pattern_.duration * framesPerBeat ;
     for (int i = 0 ; i < pattern_.size() ; ++i ){
         startFrames[i] = pattern_.start[i] * framesPerBeat ;
         endFrames[i] = pattern_.end[i] * framesPerBeat ;
@@ -114,7 +115,7 @@ void Sequence::calculateFrameTiming(){
 }
 void Sequence::tick(){
     frame_ += 1 ;
-    if ( frame_ > endFrames[pattern_.size() - 1] ){
+    if ( frame_ > duration_ ){
         frame_ = 0 ;
     }
 }

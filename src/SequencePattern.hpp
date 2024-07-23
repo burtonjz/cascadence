@@ -15,6 +15,7 @@ public:
     int notes[CONFIG_MAX_SEQUENCE_SIZE] ; // in scale positions
     float start[CONFIG_MAX_SEQUENCE_SIZE] ; // in beats
     float end[CONFIG_MAX_SEQUENCE_SIZE] ; // in beats
+    float duration ; // sequence length in beats
 
     void setSize(int s){
         if ( size_ > CONFIG_MAX_SEQUENCE_SIZE ){
