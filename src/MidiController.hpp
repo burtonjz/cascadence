@@ -60,12 +60,6 @@ public:
     void processInput(LV2_Atom_Event* ev);
 
     /**
-     * @brief run loop through incoming midi
-     * 
-     */
-    void runLoop();
-
-    /**
      * @brief Append a new midi event to the output buffer
      * 
      * @param m Midi note event
@@ -81,8 +75,10 @@ public:
 
     /**
      * @brief append midi off message for all active notes
+     * 
+     * @param root root note of sequence
      */
-    void appendAllMidiOff();
+    void appendAllMidiOff(MidiNoteEvent root);
 
 private:
     void updateActive(MidiNoteEvent m);

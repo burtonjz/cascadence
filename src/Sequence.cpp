@@ -67,7 +67,7 @@ void Sequence::setRootNote(MidiNoteEvent m){
         isPressed_ = false ;
         frame_ = 0 ;
         if (controller_ptr_){
-            controller_ptr_->appendAllMidiOff() ;
+            controller_ptr_->appendAllMidiOff(getRootNote()) ;
         }
         break ;
     default:

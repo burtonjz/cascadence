@@ -83,10 +83,10 @@ bool MidiController::isMidiOn(uint8_t midiVal){
     return false ;
 }
 
-void MidiController::appendAllMidiOff(){
+void MidiController::appendAllMidiOff(MidiNoteEvent root){
     for (int i = 0 ; i < activeNotes_.size() ; ++i ){
         if ( activeNotes_[i] != CONFIG_NULL_MIDI_VALUE && sequence_ptr_ ){
-            MidiNoteEvent m , root = sequence_ptr_->getRootNote() ;
+            MidiNoteEvent m ;
             m.event.time.frames = root.event.time.frames ;
             m.event.body.type = root.event.body.type ;
             m.event.body.size = root.event.body.size ;
