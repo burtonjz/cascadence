@@ -3,7 +3,6 @@
 
 #include <lv2/lv2plug.in/ns/ext/midi/midi.h>
 #include <array>
-#include <utility>
 
 #include "config.hpp"
 #include "SequencePattern.hpp"

@@ -1,7 +1,6 @@
 #ifndef __CASCADENCE_HPP_
 #define __CASCADENCE_HPP_
 
-#include "midiNoteEvent.hpp"
 #include "urids.hpp"
 #include "Sequence.hpp"
 #include "MidiController.hpp"

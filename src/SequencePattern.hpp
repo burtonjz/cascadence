@@ -2,7 +2,6 @@
 #define __SEQUENCE_PATTERN_HPP_
 
 #include "config.hpp"
-#include <cstdint>
 #include <algorithm>
 #include <initializer_list>
 #include <iostream>

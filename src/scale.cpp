@@ -3,7 +3,6 @@
 
 #include <cmath>
 #include <algorithm>
-#include <iostream>
 
 Scale::Scale(Note tonic, ScaleType typ):
     scaleNotes_()

@@ -2,7 +2,6 @@
 #include "Sequence.hpp"
 
 #include <lv2/lv2plug.in/ns/ext/atom/util.h>
-#include <cstddef>
 #include <iostream>
 
 

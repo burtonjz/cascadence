@@ -2,15 +2,12 @@
 #include "MidiController.hpp"
 #include "SequencePattern.hpp"
 #include "config.hpp"
-#include "midiNoteEvent.hpp"
 #include "portInfo.hpp"
 
 #include <lv2/lv2plug.in/ns/ext/log/logger.h>
 #include <lv2/lv2plug.in/ns/lv2core/lv2_util.h>
 #include <lv2/lv2plug.in/ns/ext/atom/util.h>
 #include <lv2/lv2plug.in/ns/ext/midi/midi.h>
-
-#include <iostream>
 
 Cascadence::Cascadence(const double sampleRate, const LV2_Feature *const *features):
     // logger_(),

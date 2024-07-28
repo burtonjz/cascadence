@@ -3,7 +3,6 @@
 #include "config.hpp"
 #include "scale.hpp"
 #include <lv2/lv2plug.in/ns/ext/midi/midi.h>
-#include <iostream>
 
 Sequence::Sequence(const double* sampleRate):
     sampleRate_(sampleRate),
