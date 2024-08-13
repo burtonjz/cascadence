@@ -9,18 +9,23 @@
 #include <lv2/lv2plug.in/ns/ext/atom/util.h>
 #include <lv2/lv2plug.in/ns/ext/midi/midi.h>
 
+#include <iostream>
+
 Cascadence::Cascadence(const double sampleRate, const LV2_Feature *const *features):
     // logger_(),
     uridMap_(nullptr),
     sampleRate_(sampleRate),
     samplePeriod_(1.0/sampleRate),
+    forge_(),
+    features_(features),
     bpm_(CONFIG_DEFAULT_BPM),
     Sequence_(&sampleRate_),
-    MidiController_()
+    MidiController_(),
+    ParamController_()
 {
-
+    // check features
     const char* missing = lv2_features_query(
-        features,
+        features_,
         // LV2_LOG__log, &logger_.log, false,
         LV2_URID__map, &uridMap_, true,
         NULL
@@ -33,8 +38,11 @@ Cascadence::Cascadence(const double sampleRate, const LV2_Feature *const *featur
     }
 
     urids_.initialize(uridMap_);
+    lv2_atom_forge_init(&forge_,uridMap_);
 
-    // Testing rests and chords
+    ParamController_.initialize(features_, &forge_, uridMap_, &urids_);
+
+    // Define Sequence Pattern
     Scale* scale = Sequence_.getScale() ;
     scale->setScale(Note::D, ScaleType::MAJOR) ;
     SequencePattern pattern ;
@@ -64,6 +72,10 @@ Cascadence::Cascadence(const double sampleRate, const LV2_Feature *const *featur
     MidiController_.setSequence(&Sequence_);
 }
 
+ParameterController* Cascadence::getParameterController(){
+    return &ParamController_ ;
+}
+
 void Cascadence::connectPort(const uint32_t port, void* data){
     switch(port){
         case PORT_MIDI_IN:
@@ -84,13 +96,21 @@ void Cascadence::activate(){
 void Cascadence::run(const uint32_t sampleCount){
     MidiController_.prepareBuffer();
 
-    // loop through incoming midi events
+    // loop through incoming sequence events
     uint32_t lastFrame = 0 ;
     LV2_ATOM_SEQUENCE_FOREACH(MidiController_.getInput(), ev){
         const uint32_t frame = ev->time.frames;
         sequence(lastFrame, frame);
         lastFrame = frame ;
-        if (ev->body.type == urids_.midiEvent) MidiController_.processInput(ev);
+        if (ev->body.type == urids_.midiEvent){
+            std::cout << "processing midi input" << std::endl ; 
+            MidiController_.processInput(ev);
+        }
+        else if (ParamController_.isPatchEvent(ev)){
+            std::cout << "handling parameter event" << std::endl ;
+            ParamController_.handleEvent(ev);
+            std::cout << "successful handling of parameter event" << std::endl ;
+        };
     }
 
     // sequence remaining frames in buffer

@@ -7,6 +7,10 @@
 @prefix atom: <http://lv2plug.in/ns/ext/atom#> .
 @prefix midi: <http://lv2plug.in/ns/ext/midi#> .
 
+@prefix patch: <http://lv2plug.in/ns/ext/patch#> .
+@prefix param: <http://lv2plug.in/ns/ext/parameters#> .
+@prefix state: <http://lv2plug.in/ns/ext/state#> .
+
 <https://github.com/burtonjz/cascadence> a lv2:Plugin, lv2:MidiPlugin, doap:Project ;
     lv2:binary <Cascadence.so> ;
     doap:name "Cascadence" ;
@@ -18,9 +22,10 @@
             foaf:mbox <mailto:jared.z.burton@gmail.com> ;
         ] ;
     lv2:requiredFeature urid:map ;
-    lv2:optionalFeature options:options ;
-    lv2:optionalFeature bufSize:maxBlockLength ;
-    lv2:optionalFeature lv2:hardRTCapable ;
+    lv2:optionalFeature options:options,
+        bufSize:maxBlockLength,
+        lv2:hardRTCapable,
+        state:loadDefaultState ;
     lv2:minorVersion 1 ;
     lv2:microVersion 0 ;
     lv2:port
@@ -30,7 +35,8 @@
             lv2:symbol "midi_in" ;
             lv2:name "MIDI in" ;
             atom:bufferType atom:Sequence ;
-            atom:supports midi:MidiEvent ;
+            atom:supports midi:MidiEvent, patch:Message ;
+            lv2:designation lv2:control ;
         ] ,
         [
             a lv2:OutputPort , atom:AtomPort ;
@@ -38,5 +44,14 @@
             lv2:symbol "midi_out" ;
             lv2:name "MIDI out" ;
             atom:bufferType atom:Sequence ;
-            atom:supports midi:MidiEvent ;
-        ] .
+            atom:supports midi:MidiEvent, patch:Message ;
+            lv2:designation lv2:control ;
+        ] ;
+    # define writable parameters
+    patch:writable param:bypass ;
+    # define readable parameters (if any)
+    # define plugin default state
+    state:state [
+        param:bypass false ;
+    ] .
+

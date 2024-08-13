@@ -1,7 +1,11 @@
 #include <lv2.h>
+#include <lv2/lv2plug.in/ns/lv2core/lv2.h>
+#include <lv2/lv2plug.in/ns/ext/state/state.h>
+
 #include <iostream>
 
 #include "Cascadence.hpp"
+#include "ParameterController.hpp"
 
 static LV2_Handle instantiate(const struct LV2_Descriptor *descriptor, double sample_rate, const char *bundle_path, const LV2_Feature *const *features)
 {
@@ -54,7 +58,7 @@ static const void* extension_data(const char *uri){
     return NULL ;
 }
 
-// descriptor
+
 static LV2_Descriptor const descriptor = {
     CASCADENCE_URI,
     instantiate,
@@ -65,9 +69,34 @@ static LV2_Descriptor const descriptor = {
     cleanup,
     extension_data
 };
-
-// interface
 LV2_SYMBOL_EXPORT const LV2_Descriptor* lv2_descriptor(uint32_t index){
     if (index == 0) return &descriptor ;
     return NULL ;
 };
+
+// STATE INTERFACE FUNCTIONS
+static LV2_State_Status save(
+    LV2_Handle                instance,
+    LV2_State_Store_Function  store,
+    LV2_State_Handle          handle,
+    uint32_t                  flags,
+    const LV2_Feature* const* features
+){
+    Cascadence* m = static_cast <Cascadence*> (instance) ;
+    ParameterController* p = m->getParameterController() ;
+    return p->saveState(store, handle, flags, features);
+};
+
+static LV2_State_Status restore(
+    LV2_Handle                  instance,
+    LV2_State_Retrieve_Function retrieve,
+    LV2_State_Handle            handle,
+    uint32_t                    flags,
+    const LV2_Feature* const*   features
+){
+    Cascadence* m = static_cast <Cascadence*> (instance) ;
+    ParameterController* p = m->getParameterController() ;
+    return p->restoreState(retrieve, handle, flags, features);
+};
+
+

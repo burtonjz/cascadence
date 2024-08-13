@@ -4,12 +4,15 @@
 #include "urids.hpp"
 #include "Sequence.hpp"
 #include "MidiController.hpp"
+#include "ParameterController.hpp"
 
 #include <lv2/lv2plug.in/ns/lv2core/lv2.h>
 #include <lv2/lv2plug.in/ns/ext/log/log.h>
 #include <lv2/lv2plug.in/ns/ext/log/logger.h>
 #include <lv2/lv2plug.in/ns/ext/atom/atom.h>
 #include <lv2/lv2plug.in/ns/ext/urid/urid.h>
+#include <lv2/lv2plug.in/ns/ext/state/state.h>
+#include <lv2/lv2plug.in/ns/ext/atom/forge.h>
 
 #include <cstdint>
 
@@ -22,10 +25,14 @@ private:
     const double sampleRate_ ;
     const double samplePeriod_ ;
 
+    LV2_Atom_Forge forge_ ;    
+    const LV2_Feature *const *features_ ;
+    
     uint32_t bpm_ ;
 
     Sequence Sequence_ ;
     MidiController MidiController_ ;
+    ParameterController ParamController_ ;
 
 public:
     /**
@@ -36,6 +43,9 @@ public:
      */
     Cascadence(const double sampleRate, const LV2_Feature *const *features);
 
+    ParameterController* getParameterController();
+    
+    // API FUNCTIONS
     void connectPort(const uint32_t port, void* data);
     void activate();
     void run(const uint32_t sampleCount);
