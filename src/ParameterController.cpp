@@ -12,8 +12,8 @@
 
 
 ParameterController::ParameterController():
-    map_(nullptr),
     urids_(nullptr),
+    map_(nullptr),
     dict_(),
     State_()
 {}
@@ -24,20 +24,20 @@ void ParameterController::initialize(const LV2_Feature *const *features, LV2_Ato
     map_ = map ;
     urids_ = urids ;
 
-    dict_[0].uri  = LV2_PARAMETERS__bypass ;
+    dict_[0].uri  = CASCADENCE__bypass ;
     dict_[0].urid = map_->map(map_->handle, dict_[0].uri) ;
     dict_[0].value = reinterpret_cast<LV2_Atom*>(&State_.bypass) ;
     dict_[0].value->size = sizeof(State_.bypass) - sizeof(LV2_Atom) ;
     dict_[0].value->type = map_->map(map_->handle, LV2_ATOM__Bool) ;
-}   
+}
 
-bool ParameterController::isPatchEvent(LV2_Atom_Event* ev){
-    if (ev->body.type == urids_->patchGet || ev->body.type == urids_->patchSet || ev->body.type == urids_->patchPut) return true ;
+bool ParameterController::isPatchEvent(const LV2_Atom_Object* obj){
+    if (obj->body.otype == urids_->patchGet || obj->body.otype == urids_->patchSet || obj->body.otype == urids_->patchPut) return true ;
     return false ;
 }
 
 bool ParameterController::isValidSubject(const LV2_Atom_URID* subject){
-    return (!subject || 
+    return (!subject ||
         (subject->atom.type == urids_->atomURID && subject->body == urids_->plugin)
     ) ;
 }
@@ -46,7 +46,7 @@ LV2_State_Status ParameterController::setParameter(LV2_URID key, uint32_t size, 
     // find the key in the dictionary
     auto item = std::find_if(
         dict_.begin(),
-        dict_.end(), 
+        dict_.end(),
         [key](const StateMapItem& item){
             return item.urid == key;
         }
@@ -60,13 +60,14 @@ LV2_State_Status ParameterController::setParameter(LV2_URID key, uint32_t size, 
     // Set state value
     memcpy(item->value + 1, body, size);
     item->value->size = size ;
+
     return LV2_STATE_SUCCESS ;
 }
 
 LV2_Atom* ParameterController::getParameter(LV2_URID key){
     auto item = std::find_if(
         dict_.begin(),
-        dict_.end(), 
+        dict_.end(),
         [key](const StateMapItem& item){
             return item.urid == key;
         }
@@ -81,7 +82,7 @@ void ParameterController::storeStateProperty(
     LV2_State_Map_Path*      mapPath,
     LV2_State_Status*        saveStatus,
     LV2_State_Store_Function store,
-    LV2_State_Handle         handle, 
+    LV2_State_Handle         handle,
     LV2_URID                 key,
     const LV2_Atom*          value
 ){
@@ -96,9 +97,9 @@ void ParameterController::storeStateProperty(
             handle,
             key,
             apath,
-            pathSize, 
-            urids_->atomPath, 
-            LV2_STATE_IS_POD | LV2_STATE_IS_PORTABLE 
+            pathSize,
+            urids_->atomPath,
+            LV2_STATE_IS_POD | LV2_STATE_IS_PORTABLE
         );
 
         free(apath);
@@ -132,7 +133,7 @@ void ParameterController::writeToForge(
         lv2_atom_forge_key(forge_, key);
         lv2_atom_forge_atom(forge_, pathSize , value->type);
         lv2_atom_forge_write(forge_, value, pathSize);
-        
+
         free(apath);
     } else {
         lv2_atom_forge_key(forge_, key);
@@ -156,16 +157,14 @@ void ParameterController::restoreStateProperty(
 
     if (!*status) *status = st ;
 }
-void ParameterController::handleEvent(LV2_Atom_Event* ev){
-    if      (ev->body.type == urids_->patchGet) handleGetEvent(ev) ;
-    else if (ev->body.type == urids_->patchSet) handleSetEvent(ev) ;
-    else if (ev->body.type == urids_->patchPut) handlePutEvent(ev) ;
+void ParameterController::handleEvent(const LV2_Atom_Object* obj, long frames){
+    if      (obj->body.otype == urids_->patchGet) handleGetEvent(obj, frames ) ;
+    else if (obj->body.otype == urids_->patchSet) handleSetEvent(obj, frames) ;
+    else if (obj->body.otype == urids_->patchPut) handlePutEvent(obj, frames) ;
 }
 
-void ParameterController::handleGetEvent(LV2_Atom_Event* ev){
-    // convert event to object
-    const LV2_Atom_Object* obj = (const LV2_Atom_Object*)&ev->body ;
-    
+void ParameterController::handleGetEvent(const LV2_Atom_Object* obj, long frames){
+
     // get the message
     const LV2_Atom_URID* subject = nullptr ;
     const LV2_Atom_URID* property = nullptr ;
@@ -180,7 +179,7 @@ void ParameterController::handleGetEvent(LV2_Atom_Event* ev){
 
     if (!property) { // get without specified property, output entire state
         // create property and body atoms
-        lv2_atom_forge_frame_time(forge_, ev->time.frames) ;
+        lv2_atom_forge_frame_time(forge_, frames) ;
         LV2_Atom_Forge_Frame propFrame ;
 
         lv2_atom_forge_object(forge_, &propFrame, 0, urids_->patchPut);
@@ -195,7 +194,7 @@ void ParameterController::handleGetEvent(LV2_Atom_Event* ev){
             StateMapItem* item = &dict_[i] ;
             writeToForge(mapPath, item->urid, item->value) ;
         }
-        
+
         lv2_atom_forge_pop(forge_, &bodyFrame) ;
         lv2_atom_forge_pop(forge_,&propFrame) ;
     } else { // get specifies property, output specified property only
@@ -204,12 +203,12 @@ void ParameterController::handleGetEvent(LV2_Atom_Event* ev){
         const LV2_URID  key   = property->body ;
         const LV2_Atom* value = getParameter(key);
 
-        if (!value) return ; 
+        if (!value) return ;
 
         // create output atom
-        lv2_atom_forge_frame_time(forge_, ev->time.frames);
+        lv2_atom_forge_frame_time(forge_, frames);
         LV2_Atom_Forge_Frame frame ;
-        
+
         lv2_atom_forge_object(forge_, &frame, 0, urids_->patchSet);
         lv2_atom_forge_key(forge_, urids_->patchProperty);
         lv2_atom_forge_urid(forge_, property->body);
@@ -221,10 +220,7 @@ void ParameterController::handleGetEvent(LV2_Atom_Event* ev){
 
 }
 
-void ParameterController::handleSetEvent(LV2_Atom_Event* ev){
-    // convert event to object
-    const LV2_Atom_Object* obj = reinterpret_cast<const LV2_Atom_Object*>(&ev->body) ;
-    
+void ParameterController::handleSetEvent(const LV2_Atom_Object* obj, long frames){
     // get the message
     const LV2_Atom_URID* subject  = nullptr ;
     const LV2_Atom_URID* property = nullptr ;
@@ -244,7 +240,7 @@ void ParameterController::handleSetEvent(LV2_Atom_Event* ev){
     setParameter(key, value->size, value->type, value + 1);
 }
 
-void ParameterController::handlePutEvent(LV2_Atom_Event* ev){
+void ParameterController::handlePutEvent(const LV2_Atom_Object* obj, long frames){
 
 }
 

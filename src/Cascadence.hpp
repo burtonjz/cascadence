@@ -25,9 +25,9 @@ private:
     const double sampleRate_ ;
     const double samplePeriod_ ;
 
-    LV2_Atom_Forge forge_ ;    
+    LV2_Atom_Forge forge_ ;
     const LV2_Feature *const *features_ ;
-    
+
     uint32_t bpm_ ;
 
     Sequence Sequence_ ;
@@ -37,14 +37,14 @@ private:
 public:
     /**
      * @brief Construct a new Cascadence object
-     * 
+     *
      * @param sampleRate host sample rate
      * @param features LV2 features array
      */
     Cascadence(const double sampleRate, const LV2_Feature *const *features);
 
     ParameterController* getParameterController();
-    
+
     // API FUNCTIONS
     void connectPort(const uint32_t port, void* data);
     void activate();
@@ -54,13 +54,13 @@ public:
 private:
     /**
      * @brief ticks the application forward
-     * 
+     *
      */
     void tick();
 
     /**
      * @brief run sequencing logic in the run loop
-     * 
+     *
      * @param start start frame index to sequence
      * @param end end frame index to sequence
      */
@@ -68,11 +68,17 @@ private:
 
     /**
      * @brief verifies if a specified midi value is in the bounds 0-127
-     * 
+     *
      * @param midiVal the midi value
      * @param d delta to add to midi value
      */
     bool isMidiInBounds(uint8_t midiVal, int d = 0);
+
+    /**
+     * @brief checks the ParameterController value to determine if we are currently bypassed
+     *
+     */
+    bool isBypassed();
 };
 
 

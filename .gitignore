@@ -1,5 +1,10 @@
 .vscode
+.clang-tidy
+.gitignore
+.gitmodules
 build
 TODO
 test
 test.cpp
+.cache
+compile_commands.json

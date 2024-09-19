@@ -11,8 +11,9 @@
 #include <lv2/lv2plug.in/ns/ext/patch/patch.h>
 #include <lv2/lv2plug.in/ns/ext/parameters/parameters.h>
 
-
+// define plugin URIs
 #define CASCADENCE_URI "https://github.com/burtonjz/cascadence"
+#define CASCADENCE__bypass CASCADENCE_URI "#bypass"
 
 struct Urids {
     LV2_URID plugin ;
@@ -22,7 +23,7 @@ struct Urids {
     LV2_URID atomResource ;
     LV2_URID atomSequence ;
     LV2_URID atomURID ;
-    LV2_URID atomEventTransfer ; 
+    LV2_URID atomEventTransfer ;
     // PATCH
     LV2_URID patchGet ;
     LV2_URID patchSet ;
@@ -31,6 +32,8 @@ struct Urids {
     LV2_URID patchSubject ;
     LV2_URID patchProperty ;
     LV2_URID patchValue ;
+    // PLUGIN
+    LV2_URID plugBypass ;
 
 
     void initialize(LV2_URID_Map* m){
@@ -48,6 +51,7 @@ struct Urids {
         patchSubject = m->map(m->handle, LV2_PATCH__subject);
         patchProperty = m->map(m->handle, LV2_PATCH__property);
         patchValue = m->map(m->handle, LV2_PATCH__value);
+        plugBypass = m->map(m->handle, CASCADENCE__bypass);
     }
 };
 

@@ -3,7 +3,9 @@
 #include "SequencePattern.hpp"
 #include "config.hpp"
 #include "portInfo.hpp"
+#include "urids.hpp"
 
+#include <lv2/lv2plug.in/ns/ext/atom/atom.h>
 #include <lv2/lv2plug.in/ns/ext/log/logger.h>
 #include <lv2/lv2plug.in/ns/lv2core/lv2_util.h>
 #include <lv2/lv2plug.in/ns/ext/atom/util.h>
@@ -52,9 +54,9 @@ Cascadence::Cascadence(const double sampleRate, const LV2_Feature *const *featur
     pattern.setArray<float>(pattern.start, {0,1,2,3,3});
     pattern.setArray<float>(pattern.end, {0.5,1.5,2.5,5,5});
 
-    
+
     Sequence_.setBpm(120);
-    
+
     // Megalovania
     // Scale* scale = Sequence_.getScale() ;
     // scale->setScale(Note::D,ScaleType::CHROMATIC);
@@ -99,18 +101,29 @@ void Cascadence::run(const uint32_t sampleCount){
     // loop through incoming sequence events
     uint32_t lastFrame = 0 ;
     LV2_ATOM_SEQUENCE_FOREACH(MidiController_.getInput(), ev){
+        // process frames up to this event
         const uint32_t frame = ev->time.frames;
         sequence(lastFrame, frame);
         lastFrame = frame ;
-        if (ev->body.type == urids_.midiEvent){
-            std::cout << "processing midi input" << std::endl ; 
-            MidiController_.processInput(ev);
+
+        // handle parameter/patch events
+        if (lv2_atom_forge_is_object_type(&forge_, ev->body.type)){
+            const LV2_Atom_Object* obj = reinterpret_cast<const LV2_Atom_Object*>(&ev->body);
+            if (ParamController_.isPatchEvent(obj)){
+                ParamController_.handleEvent(obj,ev->time.frames);
+            }
         }
-        else if (ParamController_.isPatchEvent(ev)){
-            std::cout << "handling parameter event" << std::endl ;
-            ParamController_.handleEvent(ev);
-            std::cout << "successful handling of parameter event" << std::endl ;
+
+        // handle midi events
+        else if (ev->body.type == urids_.midiEvent){
+            std::cout << "processing midi input" << std::endl ;
+            MidiController_.processInput(ev);
         };
+        // else if (ParamController_.isPatchEvent(ev)){
+        //     std::cout << "handling parameter event" << std::endl ;
+        //     ParamController_.handleEvent(ev);
+        //     std::cout << "successful handling of parameter event" << std::endl ;
+        // };
     }
 
     // sequence remaining frames in buffer
@@ -123,6 +136,11 @@ void Cascadence::tick(){
 
 void Cascadence::sequence(const uint32_t start, const uint32_t end){
     for (uint32_t i = start; i < end; ++i){
+        if (isBypassed()){
+            std::cout << "Bypass is on. We should pass through original midi information" << std::endl ;
+            return ;
+        }
+
         Sequence_.sequenceMidiNoteEvents() ;
         tick();
     }
@@ -135,4 +153,10 @@ void Cascadence::deactivate(){
 bool Cascadence::isMidiInBounds(uint8_t midiVal, int d ){
     int sum = static_cast<int>(midiVal) + d ;
     return sum >= 0 && sum <= 127 ;
+}
+
+bool Cascadence::isBypassed(){
+    LV2_URID id = uridMap_->map(uridMap_->handle,CASCADENCE__bypass);
+    LV2_Atom_Bool* atom = reinterpret_cast<LV2_Atom_Bool*>(ParamController_.getParameter(id));
+    return atom->body ;
 }

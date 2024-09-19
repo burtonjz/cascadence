@@ -1,37 +1,52 @@
-@prefix lv2: <http://lv2plug.in/ns/lv2core#> .
-@prefix doap: <http://usefulinc.com/ns/doap#> .
-@prefix foaf: <http://xmlns.com/foaf/0.1/> .
-@prefix urid: <http://lv2plug.in/ns/ext/urid#> .
+@prefix plug:    <https://github.com/burtonjz/cascadence#> .
+@prefix lv2:     <http://lv2plug.in/ns/lv2core#> .
+@prefix doap:    <http://usefulinc.com/ns/doap#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix foaf:    <http://xmlns.com/foaf/0.1/> .
+@prefix urid:    <http://lv2plug.in/ns/ext/urid#> .
 @prefix options: <http://lv2plug.in/ns/ext/options#> .
 @prefix bufSize: <http://lv2plug.in/ns/ext/buf-size#> .
-@prefix atom: <http://lv2plug.in/ns/ext/atom#> .
-@prefix midi: <http://lv2plug.in/ns/ext/midi#> .
+@prefix atom:    <http://lv2plug.in/ns/ext/atom#> .
+@prefix midi:    <http://lv2plug.in/ns/ext/midi#> .
+@prefix patch:   <http://lv2plug.in/ns/ext/patch#> .
+@prefix param:   <http://lv2plug.in/ns/ext/parameters#> .
+@prefix state:   <http://lv2plug.in/ns/ext/state#> .
+@prefix ui:      <http://lv2plug.in/ns/extensions/ui#> .
 
-@prefix patch: <http://lv2plug.in/ns/ext/patch#> .
-@prefix param: <http://lv2plug.in/ns/ext/parameters#> .
-@prefix state: <http://lv2plug.in/ns/ext/state#> .
+plug:ui a ui:X11UI ;
+    lv2:binary <Cascadence-ui.so> ;
+    lv2:requiredFeature
+        ui:idleInterface ,
+        urid:map ;
+    lv2:extensionData ui:idleInterface .
 
-<https://github.com/burtonjz/cascadence> a lv2:Plugin, lv2:MidiPlugin, doap:Project ;
+plug:bypass a param:bypass ;
+    rdfs:label "bypass" ;
+    rdfs:range atom:Bool .
+
+<https://github.com/burtonjz/cascadence> a lv2:Plugin, lv2:MidiPlugin ;
     lv2:binary <Cascadence.so> ;
     doap:name "Cascadence" ;
-    doap:license <https://opensource.org/licenses/isc> ; 
-    doap:maintainer 
+    doap:license <https://opensource.org/license/agpl-v3> ;
+    doap:maintainer
         [
             a foaf:Person ;
             foaf:name "Jared Burton" ;
             foaf:mbox <mailto:jared.z.burton@gmail.com> ;
         ] ;
-    lv2:requiredFeature 
+    lv2:requiredFeature
         state:loadDefaultState,
         urid:map ;
-    lv2:optionalFeature 
+    lv2:optionalFeature
         options:options,
         lv2:hardRTCapable,
         state:threadSafeRestore ;
-    lv2:extensionData 
+    lv2:extensionData
         state:interface ;
     lv2:minorVersion 1 ;
     lv2:microVersion 0 ;
+    ui:ui plug:ui ;
+
     lv2:port
         [
             a lv2:InputPort , atom:AtomPort ;
@@ -52,10 +67,11 @@
             lv2:designation lv2:control ;
         ] ;
     # define writable parameters
-    patch:writable param:bypass ;
+    patch:writable plug:bypass ;
+
     # define readable parameters (if any)
+
     # define plugin default state
     state:state [
-        param:bypass false ;
+        plug:bypass false ;
     ] .
-
