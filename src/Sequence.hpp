@@ -14,7 +14,7 @@ class MidiController ;
 
 /**
  * @brief define and implement a midi sequence
- * 
+ *
  */
 class Sequence {
 private:
@@ -34,7 +34,7 @@ private:
 public:
     /**
      * @brief default constructor
-     * 
+     *
      */
     Sequence(const double* sampleRate);
 
@@ -42,35 +42,35 @@ public:
 
     /**
      * @brief set midi controller pointer
-     * 
+     *
      * @param ptr pointer to MidiController object
      */
     void setMidiController(MidiController* ptr);
 
     /**
      * @brief define sequence pattern
-     * 
+     *
      * @param pattern sequence pattern
      */
     void setPattern(SequencePattern pattern);
 
     /**
      * @brief Get a pointer to the Scale object
-     * 
-     * @return Scale* 
+     *
+     * @return Scale*
      */
     Scale* getScale();
 
     /**
      * @brief Set the beats per minute of the sequence
-     * 
+     *
      * @param bpm beats per minute
      */
     void setBpm(int bpm) ;
 
     /**
      * @brief updates the sequence based off the target message
-     * 
+     *
      * @param midiMsg midi message
      */
     void setRootNote(MidiNoteEvent m);
@@ -82,27 +82,27 @@ public:
 
     /**
      * @brief perform sequencing for all midi note events
-     * 
+     *
      */
     void sequenceMidiNoteEvents();
 
     /**
      * @brief tick sequence object
-     * 
+     *
      */
     void tick(); // frame_ += 1 ;
 
 private:
     /**
      * @brief set the midi event status message type
-     * 
+     *
      * @param midiStatus midi status value
      */
     void setMidiStatus(LV2_Midi_Message_Type midiStatus);
 
     /**
      * @brief calculate start and end frames given current configuration
-     * 
+     *
      */
     void calculateFrameTiming();
 };

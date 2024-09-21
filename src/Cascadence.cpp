@@ -55,17 +55,22 @@ Cascadence::Cascadence(const double sampleRate, const LV2_Feature *const *featur
     // pattern.setArray<float>(pattern.end, {0.5,1.5,2.5,5,5});
     // Sequence_.setBpm(120);
 
-    // Megalovania
+    // Megalovania Sequence Definition
     Scale* scale = Sequence_.getScale() ;
     scale->setScale(Note::D,ScaleType::CHROMATIC);
     SequencePattern pattern ;
-    pattern.setSize(10) ;
-    pattern.setArray<int>(pattern.notes, {0,0,12,7,6,5,3,0,3,5});
-    pattern.setArray<float>(pattern.start, {0,0.5,1.0,2.0,3.5,4.5,5.5,6.5,7.0,7.5});
-    pattern.setArray<float>(pattern.end, {0.5,1,2,3.5,4.5,5.5,6.5,7.0,7.5,8.0});
+    pattern.append(0, 0.0, 0.5);
+    pattern.append(0, 0.5, 1.0);
+    pattern.append(12, 1.0, 2.0);
+    pattern.append(7, 2.0, 3.5);
+    pattern.append(6, 3.5, 4.5);
+    pattern.append(5, 4.5, 5.5);
+    pattern.append(3, 5.5, 6.5);
+    pattern.append(0, 6.5, 7.0);
+    pattern.append(3, 7.0, 7.5);
+    pattern.append(5, 7.5, 8.0);
 
     Sequence_.setBpm(214);
-
 
     Sequence_.setPattern(pattern);
     Sequence_.setMidiController(&MidiController_);

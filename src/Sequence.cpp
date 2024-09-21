@@ -81,9 +81,10 @@ const MidiNoteEvent Sequence::getRootNote() const {
 void Sequence::sequenceMidiNoteEvents(){
     MidiNoteEvent out ;
 
-    for(size_t j = 0 ; j < pattern_.size() ; ++j ){
-        if ( isPressed_ && frame_ == startFrames[j]){
-            uint8_t v = Scale_.getNearestScaleMidiNote(root_.msg[1], pattern_.notes[j]) ;
+    for(size_t i = 0 ; i < pattern_.size() ; ++i ){
+        auto n = pattern_.getSequenceNote(i);
+        if ( isPressed_ && frame_ == startFrames[i]){
+            uint8_t v = Scale_.getNearestScaleMidiNote(root_.msg[1], n.note) ;
             if ( v != CONFIG_NULL_MIDI_VALUE && !controller_ptr_->isMidiOn(v) ) {
                 out.event = root_.event ;
                 out.msg[0] = LV2_MIDI_MSG_NOTE_ON ;
@@ -91,8 +92,8 @@ void Sequence::sequenceMidiNoteEvents(){
                 out.msg[2] = root_.msg[2] ;
                 if(controller_ptr_) controller_ptr_->append(out);
             }
-        } else if ( frame_ == endFrames[j]){
-            uint8_t v = Scale_.getNearestScaleMidiNote(root_.msg[1], pattern_.notes[j]) ;
+        } else if ( frame_ == endFrames[i]){
+            uint8_t v = Scale_.getNearestScaleMidiNote(root_.msg[1], n.note) ;
             if ( v != CONFIG_NULL_MIDI_VALUE && controller_ptr_->isMidiOn(v) ){
                 out.event = root_.event ;
                 out.msg[0] = LV2_MIDI_MSG_NOTE_OFF ;
@@ -106,10 +107,11 @@ void Sequence::sequenceMidiNoteEvents(){
 
 void Sequence::calculateFrameTiming(){
     int framesPerBeat = 60.0 * *sampleRate_ / bpm_ ;
-    duration_ = pattern_.duration * framesPerBeat ;
+    duration_ = pattern_.getDuration() * framesPerBeat ;
     for (size_t i = 0 ; i < pattern_.size() ; ++i ){
-        startFrames[i] = pattern_.start[i] * framesPerBeat ;
-        endFrames[i] = pattern_.end[i] * framesPerBeat ;
+        auto n = pattern_.getSequenceNote(i);
+        startFrames[i] = n.start * framesPerBeat ;
+        endFrames[i] = n.end * framesPerBeat ;
     }
 }
 void Sequence::tick(){

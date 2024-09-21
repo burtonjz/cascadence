@@ -2,40 +2,59 @@
 #define __SEQUENCE_PATTERN_HPP_
 
 #include "config.hpp"
-#include <algorithm>
-#include <initializer_list>
-#include <iostream>
 
-struct SequencePattern {
+// contains configuration information for a given note in a sequence
+struct SequenceNote {
+    uint8_t note ; // in scale position
+    float start ; // in beats
+    float end ; // in beats
+
+};
+
+class SequencePattern {
 private:
     size_t size_ ;
+    float duration_ ; // sequence length in beats
+    SequenceNote notes_[CONFIG_MAX_SEQUENCE_SIZE] ;
 
-public: 
-    int notes[CONFIG_MAX_SEQUENCE_SIZE] ; // in scale positions
-    float start[CONFIG_MAX_SEQUENCE_SIZE] ; // in beats
-    float end[CONFIG_MAX_SEQUENCE_SIZE] ; // in beats
-    float duration ; // sequence length in beats
+public:
+    /**
+     * @brief SequencePattern default constructor
+     *
+     */
+    SequencePattern();
 
-    void setSize(int s){
-        if ( size_ > CONFIG_MAX_SEQUENCE_SIZE ){
-            std::cerr << "[SequencePattern::setSize] ERROR: size " << s << " is larger than the configured maximum. " << std::endl ;
-            return ;
-        }
-        size_ = s ;
-    }
+    size_t size() const ;
 
-    size_t size() const {
-        return size_ ;
-    }
+    float getDuration() const ;
 
-    template<typename T>
-    void setArray(T* array, std::initializer_list<T> values) {
-        if ( values.size() != size_ ){
-            std::cerr << "[SequencePattern::setArray] ERROR: initializer list is of wrong size" << std::endl ;
-            return ;
-        }
-        std::copy(values.begin(), values.end(), array);
-    }
+    /**
+     * @brief retrieve the sequence note
+     *
+     * @param i note index
+     */
+    const SequenceNote getSequenceNote(size_t i) const ;
+
+    /**
+     * @brief append a new sequence note to the sequence
+     *
+     * @param note note scale index
+     * @param start start beat
+     * @param end end beat
+     */
+    void append(uint8_t note, float start, float end );
+
+    /**
+     * @brief remove a sequence note
+     *
+     * @param index element index
+     */
+    void erase(size_t index);
+    /**
+     * @brief reset the sequence to empty
+     *
+     */
+    void reset();
 };
 
 #endif // __SEQUENCE_PATTERN_HPP_
