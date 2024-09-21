@@ -103,7 +103,10 @@ public:
      * @param key
      * @return LV2_Atom*
      */
-    LV2_Atom* getParameter(LV2_URID key);
+    LV2_Atom* getParameter(LV2_URID key) const ;
+
+    // Public functions to get parameter states
+    bool isBypassed() const ;
 
 private:
     /**

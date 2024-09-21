@@ -102,9 +102,13 @@ void Cascadence::run(const uint32_t sampleCount){
     // loop through incoming sequence events
     uint32_t lastFrame = 0 ;
     LV2_ATOM_SEQUENCE_FOREACH(MidiController_.getInput(), ev){
-        // process frames up to this event
         const uint32_t frame = ev->time.frames;
-        sequence(lastFrame, frame);
+
+        // process frames up to this event
+        if (!ParamController_.isBypassed()){
+            sequence(lastFrame, frame);
+        }
+
         lastFrame = frame ;
 
         // handle parameter/patch events
@@ -116,13 +120,13 @@ void Cascadence::run(const uint32_t sampleCount){
         }
         // handle midi events
         else if (ev->body.type == urids_.midiEvent){
-            if (isBypassed()) MidiController_.passInput(ev);
+            if (ParamController_.isBypassed()) MidiController_.passInput(ev);
             else MidiController_.processInput(ev);
         };
     }
 
     // sequence remaining frames in buffer
-    if (!isBypassed()){
+    if (!ParamController_.isBypassed()){
         sequence(lastFrame, sampleCount);
     }
 }
@@ -145,10 +149,4 @@ void Cascadence::deactivate(){
 bool Cascadence::isMidiInBounds(uint8_t midiVal, int d ){
     int sum = static_cast<int>(midiVal) + d ;
     return sum >= 0 && sum <= 127 ;
-}
-
-bool Cascadence::isBypassed(){
-    LV2_URID id = uridMap_->map(uridMap_->handle,CASCADENCE__bypass);
-    LV2_Atom_Bool* atom = reinterpret_cast<LV2_Atom_Bool*>(ParamController_.getParameter(id));
-    return atom->body ;
 }

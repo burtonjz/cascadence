@@ -74,11 +74,6 @@ private:
      */
     bool isMidiInBounds(uint8_t midiVal, int d = 0);
 
-    /**
-     * @brief checks the ParameterController value to determine if we are currently bypassed
-     *
-     */
-    bool isBypassed();
 };
 
 

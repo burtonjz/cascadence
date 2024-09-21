@@ -64,7 +64,7 @@ LV2_State_Status ParameterController::setParameter(LV2_URID key, uint32_t size, 
     return LV2_STATE_SUCCESS ;
 }
 
-LV2_Atom* ParameterController::getParameter(LV2_URID key){
+LV2_Atom* ParameterController::getParameter(LV2_URID key) const {
     auto item = std::find_if(
         dict_.begin(),
         dict_.end(),
@@ -76,6 +76,12 @@ LV2_Atom* ParameterController::getParameter(LV2_URID key){
     if (item == dict_.end()) return nullptr ;
 
     return item->value ;
+}
+
+bool ParameterController::isBypassed() const {
+    LV2_URID id = map_->map(map_->handle,CASCADENCE__bypass);
+    LV2_Atom_Bool* atom = reinterpret_cast<LV2_Atom_Bool*>(getParameter(id));
+    return atom->body ;
 }
 
 void ParameterController::storeStateProperty(
