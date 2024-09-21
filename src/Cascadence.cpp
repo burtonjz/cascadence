@@ -11,8 +11,6 @@
 #include <lv2/lv2plug.in/ns/ext/atom/util.h>
 #include <lv2/lv2plug.in/ns/ext/midi/midi.h>
 
-#include <iostream>
-
 Cascadence::Cascadence(const double sampleRate, const LV2_Feature *const *features):
     // logger_(),
     uridMap_(nullptr),

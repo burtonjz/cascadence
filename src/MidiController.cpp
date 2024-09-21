@@ -87,14 +87,14 @@ void MidiController::passInput(LV2_Atom_Event* ev){
 }
 
 bool MidiController::isMidiOn(uint8_t midiVal){
-    for ( int i = 0 ; i < activeNotes_.size() ; ++i ){
+    for ( size_t i = 0 ; i < activeNotes_.size() ; ++i ){
         if ( activeNotes_[i] == midiVal ) return true ;
     }
     return false ;
 }
 
 void MidiController::appendAllMidiOff(MidiNoteEvent root){
-    for (int i = 0 ; i < activeNotes_.size() ; ++i ){
+    for ( size_t i = 0 ; i < activeNotes_.size() ; ++i ){
         if ( activeNotes_[i] != CONFIG_NULL_MIDI_VALUE && sequence_ptr_ ){
             MidiNoteEvent m ;
             m.event.time.frames = root.event.time.frames ;
@@ -111,7 +111,7 @@ void MidiController::appendAllMidiOff(MidiNoteEvent root){
 void MidiController::updateActive(MidiNoteEvent m){
     switch(m.msg[0]){
         case LV2_MIDI_MSG_NOTE_ON:
-            for ( int i = 0 ; i < activeNotes_.size() ; ++i ){
+            for ( size_t i = 0 ; i < activeNotes_.size() ; ++i ){
                 if ( activeNotes_[i] == CONFIG_NULL_MIDI_VALUE ){
                     activeNotes_[i] = m.msg[1] ;
                     return ;
@@ -120,7 +120,7 @@ void MidiController::updateActive(MidiNoteEvent m){
             std::cout << "[MidiController] WARN: no null midi notes in array, could not append " << static_cast<int>(m.msg[1]) << std::endl ;
             break ;
         case LV2_MIDI_MSG_NOTE_OFF:
-            for ( int i = 0 ; i < activeNotes_.size() ; ++i ){
+            for ( size_t i = 0 ; i < activeNotes_.size() ; ++i ){
                 if ( activeNotes_[i] == m.msg[1] ){
                     activeNotes_[i] = CONFIG_NULL_MIDI_VALUE ;
                     return ;

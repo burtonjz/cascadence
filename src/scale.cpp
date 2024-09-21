@@ -27,7 +27,7 @@ const std::pair<uint8_t*, size_t> Scale::getScale(){
 void Scale::populateScale(){
     // if scale isn't set, create dummy array
     if (tonic_ == Note::NULL_NOTE){
-        for (int i = 0; i < scaleLength_; ++i){
+        for (size_t i = 0; i < scaleLength_; ++i){
             scaleNotes_[i] = CONFIG_NULL_MIDI_VALUE ;
         }
         return ;
