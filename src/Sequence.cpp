@@ -29,7 +29,7 @@ Sequence::Sequence(const double* sampleRate, Scale scale, int bpm, SequencePatte
     root_(),
     frame_(0),
     bpm_(bpm)
-{    
+{
     setPattern(pattern);
 }
 
@@ -81,7 +81,7 @@ const MidiNoteEvent Sequence::getRootNote() const {
 void Sequence::sequenceMidiNoteEvents(){
     MidiNoteEvent out ;
 
-    for(int j = 0 ; j < pattern_.size() ; ++j ){
+    for(size_t j = 0 ; j < pattern_.size() ; ++j ){
         if ( isPressed_ && frame_ == startFrames[j]){
             uint8_t v = Scale_.getNearestScaleMidiNote(root_.msg[1], pattern_.notes[j]) ;
             if ( v != CONFIG_NULL_MIDI_VALUE && !controller_ptr_->isMidiOn(v) ) {
@@ -107,7 +107,7 @@ void Sequence::sequenceMidiNoteEvents(){
 void Sequence::calculateFrameTiming(){
     int framesPerBeat = 60.0 * *sampleRate_ / bpm_ ;
     duration_ = pattern_.duration * framesPerBeat ;
-    for (int i = 0 ; i < pattern_.size() ; ++i ){
+    for (size_t i = 0 ; i < pattern_.size() ; ++i ){
         startFrames[i] = pattern_.start[i] * framesPerBeat ;
         endFrames[i] = pattern_.end[i] * framesPerBeat ;
     }

@@ -2,6 +2,7 @@
 #include <lv2/lv2plug.in/ns/ext/atom/forge.h>
 #include <lv2/lv2plug.in/ns/lv2core/lv2_util.h>
 
+#include "BStyles/Status.hpp"
 #include "BWidgets/Supports/ValueableTyped.hpp"
 
 #include "CascadenceUI.hpp"
@@ -33,7 +34,8 @@ CascadenceUI::CascadenceUI(
     uridMap_(nullptr),
     urids_(),
     widgets_(),
-    checkBoxBypass_(30,30,100,100)
+    iBypass_(100,100,200,100,
+        bundlePath + "assets/iBypass.png")
 {
 
     std::cout << "[Cascadence] 4" << std::endl ;
@@ -52,15 +54,16 @@ CascadenceUI::CascadenceUI(
     // std::cout << "[Cascadence] 5" << std::endl ;
 
     // set child widget properties
-    checkBoxBypass_.setClickable(true);
-    checkBoxBypass_.setCallbackFunction(
+    iBypass_.setClickable(true);
+    iBypass_.setToggleable(true);
+    iBypass_.setCallbackFunction(
         BEvents::Event::EventType::valueChangedEvent,
         [this] (BEvents::Event* ev) { valueChangedCallBack(ev) ; }
     );
 
     // add child widgets to parent widget and container
-    add(&checkBoxBypass_) ;
-    widgets_.push_back(&checkBoxBypass_) ;
+    add(&iBypass_) ;
+    widgets_.push_back(&iBypass_) ;
 }
 
 void CascadenceUI::portEvent(
@@ -92,9 +95,15 @@ void CascadenceUI::valueChangedCallBack(BEvents::Event* ev){
 
     if (!ui) return ;
 
-    if ( widget != &checkBoxBypass_ ) return ;
+    if ( widget != &iBypass_ ) return ;
 
     bool value = dynamic_cast<BWidgets::ValueableTyped<bool>*>(widget)->getValue() ;
+
+    if (value){
+        iBypass_.image.loadImage(BStyles::Status::normal, bundlePath_ + "assets/iBypass_pressed.png");
+    } else {
+        iBypass_.image.loadImage(BStyles::Status::normal, bundlePath_ + "assets/iBypass_unpressed.png");
+    }
 
     // write a set message to notify plugin of the change
     lv2_atom_forge_set_buffer(

@@ -1,6 +1,7 @@
 #include "MidiController.hpp"
 #include "Sequence.hpp"
 
+#include <lv2/atom/util.h>
 #include <lv2/lv2plug.in/ns/ext/atom/util.h>
 #include <iostream>
 
@@ -24,7 +25,7 @@ void MidiController::append(MidiNoteEvent m){
     lv2_atom_sequence_append_event(
         output_,
         capacity_,
-        &m.event 
+        &m.event
     );
 }
 
@@ -42,7 +43,7 @@ void MidiController::setOutput(LV2_Atom_Sequence* midiOut){
 
 void MidiController::prepareBuffer(){
     if(!output_) return ;
-    
+
     capacity_ = output_->atom.size ;
     lv2_atom_sequence_clear(output_);
     output_->atom.type = input_->atom.type ;
@@ -73,6 +74,16 @@ void MidiController::processInput(LV2_Atom_Event* ev){
                 lv2_atom_sequence_append_event(output_, capacity_, ev);
                 break ;
             }
+}
+
+void MidiController::passInput(LV2_Atom_Event* ev){
+    const uint8_t* const midiMsg = reinterpret_cast<const uint8_t*>(ev + 1);
+    std::cout << "Passing Midi Message:"
+        << " Status= " << static_cast<int>(midiMsg[0])
+        << " Note= " << static_cast<int>(midiMsg[1])
+        << " Velocity= " << static_cast<int>(midiMsg[2])
+        << std::endl ;
+    lv2_atom_sequence_append_event(output_, capacity_, ev);
 }
 
 bool MidiController::isMidiOn(uint8_t midiVal){

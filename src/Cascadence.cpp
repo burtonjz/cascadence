@@ -45,28 +45,26 @@ Cascadence::Cascadence(const double sampleRate, const LV2_Feature *const *featur
     ParamController_.initialize(features_, &forge_, uridMap_, &urids_);
 
     // Define Sequence Pattern
-    Scale* scale = Sequence_.getScale() ;
-    scale->setScale(Note::D, ScaleType::MAJOR) ;
-    SequencePattern pattern ;
-    pattern.setSize(5) ;
-    pattern.duration = 6.0 ;
-    pattern.setArray<int>(pattern.notes, {0,2,4,0,4});
-    pattern.setArray<float>(pattern.start, {0,1,2,3,3});
-    pattern.setArray<float>(pattern.end, {0.5,1.5,2.5,5,5});
-
-
-    Sequence_.setBpm(120);
+    // Scale* scale = Sequence_.getScale() ;
+    // scale->setScale(Note::D, ScaleType::MAJOR) ;
+    // SequencePattern pattern ;
+    // pattern.setSize(5) ;
+    // pattern.duration = 6.0 ;
+    // pattern.setArray<int>(pattern.notes, {0,2,4,0,4});
+    // pattern.setArray<float>(pattern.start, {0,1,2,3,3});
+    // pattern.setArray<float>(pattern.end, {0.5,1.5,2.5,5,5});
+    // Sequence_.setBpm(120);
 
     // Megalovania
-    // Scale* scale = Sequence_.getScale() ;
-    // scale->setScale(Note::D,ScaleType::CHROMATIC);
-    // SequencePattern pattern ;
-    // pattern.setSize(10) ;
-    // pattern.setArray<int>(pattern.notes, {0,0,12,7,6,5,3,0,3,5});
-    // pattern.setArray<float>(pattern.start, {0,0.5,1.0,2.0,3.5,4.5,5.5,6.5,7.0,7.5});
-    // pattern.setArray<float>(pattern.end, {0.5,1,2,3.5,4.5,5.5,6.5,7.0,7.5,8.0});
+    Scale* scale = Sequence_.getScale() ;
+    scale->setScale(Note::D,ScaleType::CHROMATIC);
+    SequencePattern pattern ;
+    pattern.setSize(10) ;
+    pattern.setArray<int>(pattern.notes, {0,0,12,7,6,5,3,0,3,5});
+    pattern.setArray<float>(pattern.start, {0,0.5,1.0,2.0,3.5,4.5,5.5,6.5,7.0,7.5});
+    pattern.setArray<float>(pattern.end, {0.5,1,2,3.5,4.5,5.5,6.5,7.0,7.5,8.0});
 
-    // Sequence_.setBpm(214);
+    Sequence_.setBpm(214);
 
 
     Sequence_.setPattern(pattern);
@@ -113,21 +111,17 @@ void Cascadence::run(const uint32_t sampleCount){
                 ParamController_.handleEvent(obj,ev->time.frames);
             }
         }
-
         // handle midi events
         else if (ev->body.type == urids_.midiEvent){
-            std::cout << "processing midi input" << std::endl ;
-            MidiController_.processInput(ev);
+            if (isBypassed()) MidiController_.passInput(ev);
+            else MidiController_.processInput(ev);
         };
-        // else if (ParamController_.isPatchEvent(ev)){
-        //     std::cout << "handling parameter event" << std::endl ;
-        //     ParamController_.handleEvent(ev);
-        //     std::cout << "successful handling of parameter event" << std::endl ;
-        // };
     }
 
     // sequence remaining frames in buffer
-    sequence(lastFrame, sampleCount);
+    if (!isBypassed()){
+        sequence(lastFrame, sampleCount);
+    }
 }
 
 void Cascadence::tick(){
@@ -136,11 +130,6 @@ void Cascadence::tick(){
 
 void Cascadence::sequence(const uint32_t start, const uint32_t end){
     for (uint32_t i = start; i < end; ++i){
-        if (isBypassed()){
-            std::cout << "Bypass is on. We should pass through original midi information" << std::endl ;
-            return ;
-        }
-
         Sequence_.sequenceMidiNoteEvents() ;
         tick();
     }

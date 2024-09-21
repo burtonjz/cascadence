@@ -8,3 +8,4 @@ test
 test.cpp
 .cache
 compile_commands.json
+assets/*.kra

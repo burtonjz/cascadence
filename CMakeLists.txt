@@ -122,6 +122,11 @@ set(PACKAGE_FILES
     "${CMAKE_BINARY_DIR}/Cascadence.so"
     "${CMAKE_BINARY_DIR}/Cascadence-ui.so"
 )
+
+set(ASSET_FILES
+    "${CMAKE_SOURCE_DIR}/assets/*.png"
+)
+
 # file(GLOB ASSETS_FILES "${CMAKE_SOURCE_DIR}/assets/*.png")
 
 set(INSTALL_DIR "$ENV{HOME}/.lv2")
@@ -135,7 +140,9 @@ add_custom_command(
     TARGET package
     POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/Cascadence.lv2
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/Cascadence.lv2/assets
     COMMAND ${CMAKE_COMMAND} -E copy ${PACKAGE_FILES} ${CMAKE_BINARY_DIR}/Cascadence.lv2/
+    COMMAND ${CMAKE_COMMAND} -E copy ${ASSET_FILES} ${CMAKE_BINARY_DIR}/Cascadence.lv2/assets
     # COMMAND $(CMAKE_COMMAND) -E copy ${ASSETS_FILES} ${CMAKE_BINARY_DIR}/Cascadence.lv2/assets/
 )
 

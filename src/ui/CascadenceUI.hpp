@@ -10,7 +10,7 @@
 #include <vector>
 
 #include "BWidgets/Window.hpp"
-#include "BWidgets/CheckBox.hpp"
+#include "BWidgets/ImageButton.hpp"
 #include "BEvents/Event.hpp"
 
 #include "urids.hpp"
@@ -31,7 +31,8 @@ private:
 
     // widgets
     std::vector<BWidgets::Widget*> widgets_ ;
-    BWidgets::CheckBox checkBoxBypass_ ;
+
+    BWidgets::ImageButton iBypass_ ;
 
 public:
     CascadenceUI(
