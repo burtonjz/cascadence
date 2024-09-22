@@ -57,14 +57,6 @@ void Sequence::setStatus(bool status){
     }
 }
 
-void Sequence::setMidiStatus(LV2_Midi_Message_Type midiStatus){
-    root_.msg[0] = midiStatus ;
-}
-
-void Sequence::setRootNote(MidiNoteEvent m){
-    root_ = m ;
-}
-
 const MidiNoteEvent Sequence::getRootNote() const {
     return root_ ;
 }

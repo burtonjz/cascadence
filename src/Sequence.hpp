@@ -75,13 +75,6 @@ public:
     void setStatus(bool status);
 
     /**
-     * @brief updates the sequence based off the target message
-     *
-     * @param midiMsg midi message
-     */
-    void setRootNote(MidiNoteEvent m);
-
-    /**
      * @brief getter for root note
      */
     const MidiNoteEvent getRootNote() const ;
@@ -105,13 +98,6 @@ public:
     void tick(); // frame_ += 1 ;
 
 private:
-    /**
-     * @brief set the midi event status message type
-     *
-     * @param midiStatus midi status value
-     */
-    void setMidiStatus(LV2_Midi_Message_Type midiStatus);
-
     /**
      * @brief calculate start and end frames given current configuration
      *
