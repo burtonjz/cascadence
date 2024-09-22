@@ -33,8 +33,6 @@ void MidiController::onParameterChanged(const StateMapItem* item){
         // on bypass, turn all notes off, set sequence to off
         appendAllMidiOff();
         if (bypassed) sequence_->setStatus(false);
-
-
     }
 }
 

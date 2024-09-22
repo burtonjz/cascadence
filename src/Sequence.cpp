@@ -6,6 +6,7 @@
 
 Sequence::Sequence(const double* sampleRate):
     sampleRate_(sampleRate),
+    map_(nullptr),
     controller_ptr_(nullptr),
     pattern_(),
     startFrames(),
@@ -19,6 +20,7 @@ Sequence::Sequence(const double* sampleRate):
 
 Sequence::Sequence(const double* sampleRate, Scale scale, int bpm, SequencePattern pattern):
     sampleRate_(sampleRate),
+    map_(nullptr),
     controller_ptr_(nullptr),
     pattern_(),
     startFrames(),
@@ -29,6 +31,17 @@ Sequence::Sequence(const double* sampleRate, Scale scale, int bpm, SequencePatte
     bpm_(bpm)
 {
     setPattern(pattern);
+}
+
+void Sequence::initialize(LV2_URID_Map* map){
+    map_ = map ;
+}
+
+void Sequence::onParameterChanged(const StateMapItem* item){
+    if ( item->urid == map_->map(map_->handle, CASCADENCE__bpm)){
+        LV2_Atom_Int* atom = reinterpret_cast<LV2_Atom_Bool*>(item->value);
+        setBpm(atom->body) ;
+    }
 }
 
 void Sequence::setMidiController(MidiController* ptr){

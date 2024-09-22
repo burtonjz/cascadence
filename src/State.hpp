@@ -7,6 +7,7 @@
 
 struct PluginState {
     LV2_Atom_Bool bypass ;
+    LV2_Atom_Int  bpm ;
 } ;
 
 struct StateMapItem {

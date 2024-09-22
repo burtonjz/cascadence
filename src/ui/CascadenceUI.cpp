@@ -2,9 +2,12 @@
 #include <lv2/lv2plug.in/ns/ext/atom/forge.h>
 #include <lv2/lv2plug.in/ns/lv2core/lv2_util.h>
 
+#include <type_traits>
+
 #include "BStyles/Status.hpp"
 #include "BWidgets/Supports/ValueableTyped.hpp"
 
+#include "config.hpp"
 #include "CascadenceUI.hpp"
 #include "pugl/pugl.h"
 
@@ -34,8 +37,9 @@ CascadenceUI::CascadenceUI(
     uridMap_(nullptr),
     urids_(),
     widgets_(),
-    iBypass_(100,100,200,100,
-        bundlePath + "assets/iBypass.png")
+    wBypass_(100,100,200,100,
+        bundlePath + "assets/wBypass.png")
+    // wBpm_(300,300,50,400, CONFIG_DEFAULT_BPM, 20, 300, 5)
 {
 
     std::cout << "[Cascadence] This delay seems to stop a segmentation fault..." << std::endl ;
@@ -54,16 +58,26 @@ CascadenceUI::CascadenceUI(
     // std::cout << "[Cascadence] 5" << std::endl ;
 
     // set child widget properties
-    iBypass_.setClickable(true);
-    iBypass_.setToggleable(true);
-    iBypass_.setCallbackFunction(
+    wBypass_.setClickable(true);
+    wBypass_.setToggleable(true);
+    wBypass_.setCallbackFunction(
         BEvents::Event::EventType::valueChangedEvent,
         [this] (BEvents::Event* ev) { valueChangedCallBack(ev) ; }
     );
 
+    // wBpm_.setClickable(true);
+    // wBpm_.setDraggable(true);
+    // wBpm_.setCallbackFunction(
+    //     BEvents::Event::EventType::valueChangedEvent,
+    //     [this] (BEvents::Event* ev) { valueChangedCallBack(ev) ; }
+    // );
+
     // add child widgets to parent widget and container
-    add(&iBypass_) ;
-    widgets_.push_back(&iBypass_) ;
+    add(&wBypass_) ;
+    widgets_.push_back(&wBypass_) ;
+
+    // add(&wBpm_);
+    // widgets_.push_back(&wBpm_);
 }
 
 void CascadenceUI::portEvent(
@@ -95,21 +109,59 @@ void CascadenceUI::valueChangedCallBack(BEvents::Event* ev){
 
     if (!ui) return ;
 
-    if ( widget != &iBypass_ ) return ;
+    if ( widget == &wBypass_ ){
+        bool value = dynamic_cast<BWidgets::ValueableTyped<bool>*>(widget)->getValue() ;
 
-    bool value = dynamic_cast<BWidgets::ValueableTyped<bool>*>(widget)->getValue() ;
+        if (value){
+            std::cout << "loading bypass button image" << std::endl ;
+            wBypass_.image.loadImage(BStyles::Status::normal, bundlePath_ + "assets/wBypass_pressed.png");
+        } else {
+            std::cout << "loading bypass button image" << std::endl ;
+            wBypass_.image.loadImage(BStyles::Status::normal, bundlePath_ + "assets/wBypass_unpressed.png");
+        }
 
-    if (value){
-        iBypass_.image.loadImage(BStyles::Status::normal, bundlePath_ + "assets/iBypass_pressed.png");
-    } else {
-        iBypass_.image.loadImage(BStyles::Status::normal, bundlePath_ + "assets/iBypass_unpressed.png");
+        sendValueChangedAtom<bool>(urids_.plugBypass, value);
     }
 
+
+    // else if ( widget == &wBpm_ ){
+    //     int value = dynamic_cast<BWidgets::ValueableTyped<float>*>(widget)->getValue();
+
+    //     // write a set message to notify plugin of the change
+    //     lv2_atom_forge_set_buffer(
+    //         &ui->forge_,
+    //         ui->forgeBuf_,
+    //         sizeof(ui->forgeBuf_)
+    //     );
+
+    //     LV2_Atom_Forge_Frame frame ;
+    //     LV2_Atom* msg = reinterpret_cast<LV2_Atom*>(lv2_atom_forge_object(
+    //         &forge_, &frame, 0, urids_.patchSet
+    //     )) ;
+
+    //     lv2_atom_forge_key(&forge_,urids_.patchProperty);
+    //     lv2_atom_forge_urid(&forge_, urids_.plugBpm);
+    //     lv2_atom_forge_key(&forge_, urids_.patchValue);
+    //     lv2_atom_forge_int(&forge_, value);
+    //     lv2_atom_forge_pop(&forge_, &frame);
+
+    //     writeFunction_(
+    //         ui->controller_,
+    //         0,
+    //         lv2_atom_total_size(msg),
+    //         urids_.atomEventTransfer,
+    //         msg
+    //     );
+    }
+}
+
+template<typename T>
+void CascadenceUI::sendValueChangedAtom(LV2_URID urid, T value){
     // write a set message to notify plugin of the change
     lv2_atom_forge_set_buffer(
-        &ui->forge_,
-        ui->forgeBuf_,
-        sizeof(ui->forgeBuf_)
+        &forge_,
+        forgeBuf_,
+        sizeof(forgeBuf_)
     );
 
     LV2_Atom_Forge_Frame frame ;
@@ -118,13 +170,19 @@ void CascadenceUI::valueChangedCallBack(BEvents::Event* ev){
     )) ;
 
     lv2_atom_forge_key(&forge_,urids_.patchProperty);
-    lv2_atom_forge_urid(&forge_, urids_.plugBypass);
+    lv2_atom_forge_urid(&forge_, urid);
     lv2_atom_forge_key(&forge_, urids_.patchValue);
-    lv2_atom_forge_bool(&forge_, value);
+    if        ( std::is_same<T,bool>::value ){
+        lv2_atom_forge_bool(&forge_, value);
+    } else if ( std::is_same<T,int>::value ){
+        lv2_atom_forge_int(&forge_,value);
+    } else if ( std::is_same<T,float>::value ){
+        lv2_atom_forge_float(&forge_,value);
+    }
     lv2_atom_forge_pop(&forge_, &frame);
 
     writeFunction_(
-        ui->controller_,
+        controller_,
         0,
         lv2_atom_total_size(msg),
         urids_.atomEventTransfer,

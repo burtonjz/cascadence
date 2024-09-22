@@ -24,6 +24,11 @@ plug:bypass a param:bypass ;
     rdfs:label "bypass" ;
     rdfs:range atom:Bool .
 
+plug:bpm a lv2:Parameter ;
+    rdfs:label "bpm" ;
+    rdfs:range atom:Int .
+
+
 <https://github.com/burtonjz/cascadence> a lv2:Plugin, lv2:MidiPlugin ;
     lv2:binary <Cascadence.so> ;
     doap:name "Cascadence" ;
@@ -68,10 +73,12 @@ plug:bypass a param:bypass ;
         ] ;
     # define writable parameters
     patch:writable plug:bypass ;
+    patch:writable plug:bpm ;
 
     # define readable parameters (if any)
 
     # define plugin default state
     state:state [
         plug:bypass false ;
+        plug:bpm    120   ;
     ] .

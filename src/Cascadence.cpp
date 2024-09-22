@@ -40,22 +40,12 @@ Cascadence::Cascadence(const double sampleRate, const LV2_Feature *const *featur
     urids_.initialize(uridMap_);
     lv2_atom_forge_init(&forge_,uridMap_);
 
+    // Initializations
+    Sequence_.initialize(uridMap_);
     MidiController_.initialize(uridMap_);
     ParamController_.initialize(features_, &forge_, uridMap_, &urids_);
 
-
-    // Define Sequence Pattern
-    // Scale* scale = Sequence_.getScale() ;
-    // scale->setScale(Note::D, ScaleType::MAJOR) ;
-    // SequencePattern pattern ;
-    // pattern.setSize(5) ;
-    // pattern.duration = 6.0 ;
-    // pattern.setArray<int>(pattern.notes, {0,2,4,0,4});
-    // pattern.setArray<float>(pattern.start, {0,1,2,3,3});
-    // pattern.setArray<float>(pattern.end, {0.5,1.5,2.5,5,5});
-    // Sequence_.setBpm(120);
-
-    // Megalovania Sequence Definition
+    // Megalovania Sequence Pattern Definition
     Scale* scale = Sequence_.getScale() ;
     scale->setScale(Note::D,ScaleType::CHROMATIC);
     SequencePattern pattern ;
@@ -105,8 +95,7 @@ void Cascadence::activate(){
     // register observers (also sends initial notifies to sync)
     ParamController_.registerObserver(this);
     ParamController_.registerObserver(&MidiController_);
-
-    return ;
+    ParamController_.registerObserver(&Sequence_);
 }
 
 void Cascadence::run(const uint32_t sampleCount){

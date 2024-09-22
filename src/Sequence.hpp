@@ -5,6 +5,8 @@
 #include <array>
 
 #include "config.hpp"
+#include "ParameterObserver.hpp"
+#include "urids.hpp"
 #include "SequencePattern.hpp"
 #include "scale.hpp"
 #include "midiNoteEvent.hpp"
@@ -16,11 +18,14 @@ class MidiController ;
  * @brief define and implement a midi sequence
  *
  */
-class Sequence {
+class Sequence : public ParameterObserver {
 private:
     const double* sampleRate_ ;
+    LV2_URID_Map* map_ ;
+
     MidiController* controller_ptr_ ;
     SequencePattern pattern_ ;
+
     std::array<int, CONFIG_MAX_SEQUENCE_SIZE> startFrames ;
     std::array<int, CONFIG_MAX_SEQUENCE_SIZE> endFrames ;
     float duration_ ;
@@ -38,6 +43,10 @@ public:
     Sequence(const double* sampleRate);
 
     Sequence(const double* sampleRate, Scale scale, int bpm, SequencePattern pattern);
+
+    void initialize(LV2_URID_Map* map);
+
+    void onParameterChanged(const StateMapItem* item);
 
     /**
      * @brief set midi controller pointer

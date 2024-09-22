@@ -14,6 +14,7 @@
 // define plugin URIs
 #define CASCADENCE_URI "https://github.com/burtonjz/cascadence"
 #define CASCADENCE__bypass CASCADENCE_URI "#bypass"
+#define CASCADENCE__bpm    CASCADENCE_URI "#bpm"
 
 struct Urids {
     LV2_URID plugin ;
@@ -34,24 +35,26 @@ struct Urids {
     LV2_URID patchValue ;
     // PLUGIN
     LV2_URID plugBypass ;
+    LV2_URID plugBpm    ;
 
 
     void initialize(LV2_URID_Map* m){
-        plugin = m->map(m->handle, CASCADENCE_URI);
-        midiEvent = m->map(m->handle, LV2_MIDI__MidiEvent);
-        atomPath = m->map(m->handle, LV2_ATOM__Path);
-        atomResource = m->map(m->handle, LV2_ATOM__Resource);
-        atomSequence = m->map(m->handle, LV2_ATOM__Sequence);
-        atomURID = m->map(m->handle, LV2_ATOM__URID);
+        plugin            = m->map(m->handle, CASCADENCE_URI);
+        midiEvent         = m->map(m->handle, LV2_MIDI__MidiEvent);
+        atomPath          = m->map(m->handle, LV2_ATOM__Path);
+        atomResource      = m->map(m->handle, LV2_ATOM__Resource);
+        atomSequence      = m->map(m->handle, LV2_ATOM__Sequence);
+        atomURID          = m->map(m->handle, LV2_ATOM__URID);
         atomEventTransfer = m->map(m->handle, LV2_ATOM__eventTransfer);
-        patchGet = m->map(m->handle, LV2_PATCH__Get);
-        patchSet = m->map(m->handle, LV2_PATCH__Set);
-        patchPut = m->map(m->handle, LV2_PATCH__Put);
-        patchBody = m->map(m->handle, LV2_PATCH__body);
-        patchSubject = m->map(m->handle, LV2_PATCH__subject);
-        patchProperty = m->map(m->handle, LV2_PATCH__property);
-        patchValue = m->map(m->handle, LV2_PATCH__value);
-        plugBypass = m->map(m->handle, CASCADENCE__bypass);
+        patchGet          = m->map(m->handle, LV2_PATCH__Get);
+        patchSet          = m->map(m->handle, LV2_PATCH__Set);
+        patchPut          = m->map(m->handle, LV2_PATCH__Put);
+        patchBody         = m->map(m->handle, LV2_PATCH__body);
+        patchSubject      = m->map(m->handle, LV2_PATCH__subject);
+        patchProperty     = m->map(m->handle, LV2_PATCH__property);
+        patchValue        = m->map(m->handle, LV2_PATCH__value);
+        plugBypass        = m->map(m->handle, CASCADENCE__bypass);
+        plugBpm           = m->map(m->handle, CASCADENCE__bpm);
     }
 };
 
