@@ -24,7 +24,6 @@ private:
     std::array<int, CONFIG_MAX_SEQUENCE_SIZE> startFrames ;
     std::array<int, CONFIG_MAX_SEQUENCE_SIZE> endFrames ;
     float duration_ ;
-    bool isPressed_ ;
 
     Scale Scale_ ;
     MidiNoteEvent root_ ;
@@ -69,6 +68,13 @@ public:
     void setBpm(int bpm) ;
 
     /**
+     * @brief toggle the sequence on or off
+     *
+     * @param status bool
+     */
+    void setStatus(bool status);
+
+    /**
      * @brief updates the sequence based off the target message
      *
      * @param midiMsg midi message
@@ -85,6 +91,12 @@ public:
      *
      */
     void sequenceMidiNoteEvents();
+
+    /**
+     * @brief Handle incoming Midi Note Event
+     * @param m Midi Note Event
+     */
+    void handleMidiNoteEvent(const MidiNoteEvent m);
 
     /**
      * @brief tick sequence object

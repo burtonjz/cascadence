@@ -7,21 +7,29 @@
 #include <array>
 
 #include "config.hpp"
+#include "ParameterObserver.hpp"
 #include "midiNoteEvent.hpp"
 #include "Sequence.hpp"
 
 
 
 
-class MidiController {
+class MidiController : public ParameterObserver {
 private:
-    Sequence* sequence_ptr_ ;
     const LV2_Atom_Sequence* input_ ;
     LV2_Atom_Sequence* output_ ;
+    LV2_URID_Map* map_ ;
+
+    Sequence* sequence_ ;
     uint32_t capacity_ ;
     std::array<uint8_t, CONFIG_MAX_SEQUENCE_SIZE> activeNotes_ ;
+
 public:
     MidiController();
+
+    void initialize(LV2_URID_Map* map);
+
+    void onParameterChanged(const StateMapItem* item);
 
     // set pointer to sequence object
     void setSequence(Sequence* ptr);
@@ -83,10 +91,8 @@ public:
 
     /**
      * @brief append midi off message for all active notes
-     *
-     * @param root root note of sequence
      */
-    void appendAllMidiOff(MidiNoteEvent root);
+    void appendAllMidiOff();
 
 private:
     void updateActive(MidiNoteEvent m);

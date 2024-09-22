@@ -26,8 +26,6 @@ static LV2UI_Handle instantiate(
     // make sure we're called by the right plugin
     if (std::strcmp(plugin_uri,CASCADENCE_URI) != 0) return nullptr ;
 
-    std::cout << "[Cascadence] 1" << std::endl ;
-
     // define window
     void* parentXWindow = nullptr;
     for (int i = 0; features[i]; ++i){
@@ -37,14 +35,10 @@ static LV2UI_Handle instantiate(
         }
     }
 
-    std::cout << "[Cascadence] 2" << std::endl ;
-
     if (!parentXWindow){
         std::cerr << "Required feature LV2_UI__parent not provided" << std::endl ;
         return nullptr ;
     }
-
-    std::cout << "[Cascadence] 3" << std::endl ;
 
     CascadenceUI* ui ;
     try {

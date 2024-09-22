@@ -1,6 +1,7 @@
 #ifndef __CASCADENCE_HPP_
 #define __CASCADENCE_HPP_
 
+#include "ParameterObserver.hpp"
 #include "urids.hpp"
 #include "Sequence.hpp"
 #include "MidiController.hpp"
@@ -16,7 +17,7 @@
 
 #include <cstdint>
 
-class Cascadence {
+class Cascadence : public ParameterObserver {
 private:
     // LV2_Log_Logger logger_ ;
     LV2_URID_Map* uridMap_ ;
@@ -34,6 +35,9 @@ private:
     MidiController MidiController_ ;
     ParameterController ParamController_ ;
 
+    // Parameter Vars
+    bool bypassed_ ;
+
 public:
     /**
      * @brief Construct a new Cascadence object
@@ -44,6 +48,8 @@ public:
     Cascadence(const double sampleRate, const LV2_Feature *const *features);
 
     ParameterController* getParameterController();
+
+    void onParameterChanged(const StateMapItem* item);
 
     // API FUNCTIONS
     void connectPort(const uint32_t port, void* data);

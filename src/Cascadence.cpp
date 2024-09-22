@@ -40,7 +40,9 @@ Cascadence::Cascadence(const double sampleRate, const LV2_Feature *const *featur
     urids_.initialize(uridMap_);
     lv2_atom_forge_init(&forge_,uridMap_);
 
+    MidiController_.initialize(uridMap_);
     ParamController_.initialize(features_, &forge_, uridMap_, &urids_);
+
 
     // Define Sequence Pattern
     // Scale* scale = Sequence_.getScale() ;
@@ -75,6 +77,13 @@ Cascadence::Cascadence(const double sampleRate, const LV2_Feature *const *featur
     MidiController_.setSequence(&Sequence_);
 }
 
+void Cascadence::onParameterChanged(const StateMapItem* item){
+    if ( item->urid == uridMap_->map(uridMap_->handle, CASCADENCE__bypass)){
+        LV2_Atom_Bool* atom = reinterpret_cast<LV2_Atom_Bool*>(item->value);
+        bypassed_ = atom->body ;
+    }
+}
+
 ParameterController* Cascadence::getParameterController(){
     return &ParamController_ ;
 }
@@ -93,6 +102,10 @@ void Cascadence::connectPort(const uint32_t port, void* data){
 }
 
 void Cascadence::activate(){
+    // register observers (also sends initial notifies to sync)
+    ParamController_.registerObserver(this);
+    ParamController_.registerObserver(&MidiController_);
+
     return ;
 }
 
@@ -105,7 +118,7 @@ void Cascadence::run(const uint32_t sampleCount){
         const uint32_t frame = ev->time.frames;
 
         // process frames up to this event
-        if (!ParamController_.isBypassed()){
+        if (!bypassed_){
             sequence(lastFrame, frame);
         }
 
@@ -120,13 +133,13 @@ void Cascadence::run(const uint32_t sampleCount){
         }
         // handle midi events
         else if (ev->body.type == urids_.midiEvent){
-            if (ParamController_.isBypassed()) MidiController_.passInput(ev);
+            if (bypassed_) MidiController_.passInput(ev);
             else MidiController_.processInput(ev);
         };
     }
 
     // sequence remaining frames in buffer
-    if (!ParamController_.isBypassed()){
+    if (!bypassed_){
         sequence(lastFrame, sampleCount);
     }
 }

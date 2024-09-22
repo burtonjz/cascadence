@@ -38,7 +38,7 @@ CascadenceUI::CascadenceUI(
         bundlePath + "assets/iBypass.png")
 {
 
-    std::cout << "[Cascadence] 4" << std::endl ;
+    std::cout << "[Cascadence] This delay seems to stop a segmentation fault..." << std::endl ;
 
     // check features
     const char* missing = lv2_features_query(

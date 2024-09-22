@@ -1,7 +1,10 @@
 #ifndef __PARAMETER_CONTROLLER_HPP_
 #define __PARAMETER_CONTROLLER_HPP_
 
+#include "config.hpp"
 #include "urids.hpp"
+#include "ParameterObserver.hpp"
+#include "State.hpp"
 
 #include <lv2/lv2plug.in/ns/ext/atom/atom.h>
 #include <lv2/lv2plug.in/ns/ext/atom/forge.h>
@@ -10,29 +13,9 @@
 
 #include <cstring>
 #include <array>
+#include <vector>
+
 #include <lv2/urid/urid.h>
-
-#define NUM_PARAMETERS 1
-
-struct PluginState {
-    LV2_Atom_Bool bypass ;
-} ;
-
-struct StateMapItem {
-    const char* uri ;
-    LV2_URID urid ;
-    LV2_Atom* value ;
-
-    bool operator<(const StateMapItem& other) const {
-        return urid < other.urid ;
-    }
-
-    bool operator==(const StateMapItem& other) const {
-        return urid == other.urid &&
-            std::strcmp(uri,other.uri) == 0 &&
-            value == other.value ;
-    }
-} ;
 
 class ParameterController {
 private:
@@ -41,15 +24,20 @@ private:
     Urids* urids_ ;
     LV2_URID_Map* map_ ;
 
-    std::array<StateMapItem, NUM_PARAMETERS> dict_ ;
+    std::array<StateMapItem, CONFIG_NUM_STATE_PARAMETERS> dict_ ;
     PluginState State_ ;
 
+    std::vector<ParameterObserver*> observers_ ;
+
 public:
+    // CONSTRUCTORS
     /**
      * @brief ParameterController default constructor
      *
      */
     ParameterController();
+
+    // ACTIVATION FUNCTIONS
 
     /**
      * @brief Initialize parameter state, define uris
@@ -59,6 +47,15 @@ public:
      * @param urids Urids object
      */
     void initialize(const LV2_Feature *const *features ,LV2_Atom_Forge* forge, LV2_URID_Map* map, Urids* urids) ;
+
+    /**
+     * @brief register an observer to the ParameterController. Only run during initialization/activation stages
+     *
+     * @param observer
+     */
+    void registerObserver(ParameterObserver* observer);
+
+    // LV2 PATCH/STATE HANDLING
 
     /**
      * @brief checks if specified input event is a patch event
@@ -97,6 +94,8 @@ public:
             const LV2_Feature* const*   features
     );
 
+    // PARAMETER HANDLING
+
     /**
      * @brief gets the atom corresponding to a State Item
      *
@@ -105,10 +104,20 @@ public:
      */
     LV2_Atom* getParameter(LV2_URID key) const ;
 
-    // Public functions to get parameter states
-    bool isBypassed() const ;
+    /**
+     * @brief function to notify observers of a parameter change
+     *
+     */
+    void notifyObservers(const StateMapItem* item) const ;
 
 private:
+    /**
+     * @brief send notifies for all state items with specified observer
+     *
+     * @param observer observer class instance
+     */
+    void syncObserver(ParameterObserver* observer) const ;
+
     /**
      * @brief makes sure an atom object message subject is valid for this plugin
      *

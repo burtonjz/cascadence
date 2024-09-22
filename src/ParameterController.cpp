@@ -31,6 +31,11 @@ void ParameterController::initialize(const LV2_Feature *const *features, LV2_Ato
     dict_[0].value->type = map_->map(map_->handle, LV2_ATOM__Bool) ;
 }
 
+void ParameterController::registerObserver(ParameterObserver* observer){
+    observers_.push_back(observer);
+    syncObserver(observer);
+}
+
 bool ParameterController::isPatchEvent(const LV2_Atom_Object* obj){
     if (obj->body.otype == urids_->patchGet || obj->body.otype == urids_->patchSet || obj->body.otype == urids_->patchPut) return true ;
     return false ;
@@ -60,6 +65,7 @@ LV2_State_Status ParameterController::setParameter(LV2_URID key, uint32_t size, 
     // Set state value
     memcpy(item->value + 1, body, size);
     item->value->size = size ;
+    notifyObservers(item);
 
     return LV2_STATE_SUCCESS ;
 }
@@ -78,10 +84,16 @@ LV2_Atom* ParameterController::getParameter(LV2_URID key) const {
     return item->value ;
 }
 
-bool ParameterController::isBypassed() const {
-    LV2_URID id = map_->map(map_->handle,CASCADENCE__bypass);
-    LV2_Atom_Bool* atom = reinterpret_cast<LV2_Atom_Bool*>(getParameter(id));
-    return atom->body ;
+void ParameterController::notifyObservers(const StateMapItem* item) const {
+    for (ParameterObserver* observer: observers_ ){
+        observer->onParameterChanged(item);
+    }
+}
+
+void ParameterController::syncObserver(ParameterObserver* observer) const {
+    for ( size_t i = 0; i < dict_.size(); ++i ){
+        observer->onParameterChanged(&dict_[i]);
+    }
 }
 
 void ParameterController::storeStateProperty(

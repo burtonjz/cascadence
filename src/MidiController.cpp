@@ -1,5 +1,6 @@
 #include "MidiController.hpp"
 #include "Sequence.hpp"
+#include "urids.hpp"
 
 #include <lv2/atom/util.h>
 #include <lv2/lv2plug.in/ns/ext/atom/util.h>
@@ -7,17 +8,34 @@
 
 
 MidiController::MidiController():
-    sequence_ptr_(nullptr),
     input_(nullptr),
     output_(nullptr),
+    map_(nullptr),
+    sequence_(nullptr),
     capacity_(0),
     activeNotes_()
 {
     activeNotes_.fill(CONFIG_NULL_MIDI_VALUE);
 }
 
+void MidiController::initialize(LV2_URID_Map* map){
+    map_ = map ;
+}
+
 void MidiController::setSequence(Sequence* ptr){
-    sequence_ptr_ = ptr ;
+    sequence_ = ptr ;
+}
+
+void MidiController::onParameterChanged(const StateMapItem* item){
+    if ( item->urid == map_->map(map_->handle, CASCADENCE__bypass)){
+        LV2_Atom_Bool* atom = reinterpret_cast<LV2_Atom_Bool*>(item->value);
+        bool bypassed = atom->body ;
+        // on bypass, turn all notes off, set sequence to off
+        appendAllMidiOff();
+        if (bypassed) sequence_->setStatus(false);
+
+
+    }
 }
 
 void MidiController::append(MidiNoteEvent m){
@@ -66,7 +84,24 @@ void MidiController::processInput(LV2_Atom_Event* ev){
                 m.msg[1] = midiMsg[1] ;
                 m.msg[2] = midiMsg[2] ;
 
-                if(sequence_ptr_) sequence_ptr_->setRootNote(m) ;
+                if(sequence_){
+                    /*
+                    The Midi Controller Needs to clear active midi notes in two cases
+
+                    1. New Midi Note On is received
+                    2. Midi Note off Corresponds with current root midi note
+                    */
+                    if (midiType == LV2_MIDI_MSG_NOTE_ON){
+                        appendAllMidiOff();
+                    } else {
+                        const MidiNoteEvent root = sequence_->getRootNote() ;
+                        if (m.msg[1] == root.msg[1]){
+                            appendAllMidiOff();
+                        }
+                    }
+
+                    sequence_->handleMidiNoteEvent(m);
+                }
 
                 break ;
             default:
@@ -78,11 +113,14 @@ void MidiController::processInput(LV2_Atom_Event* ev){
 
 void MidiController::passInput(LV2_Atom_Event* ev){
     const uint8_t* const midiMsg = reinterpret_cast<const uint8_t*>(ev + 1);
-    std::cout << "Passing Midi Message:"
-        << " Status= " << static_cast<int>(midiMsg[0])
-        << " Note= " << static_cast<int>(midiMsg[1])
-        << " Velocity= " << static_cast<int>(midiMsg[2])
-        << std::endl ;
+    MidiNoteEvent m ;
+    m.event.time.frames = ev->time.frames ;
+    m.event.body.type = ev->body.type ;
+    m.event.body.size = ev->body.size ;
+    m.msg[0] = midiMsg[0] ;
+    m.msg[1] = midiMsg[1] ;
+    m.msg[2] = midiMsg[2] ;
+    updateActive(m);
     lv2_atom_sequence_append_event(output_, capacity_, ev);
 }
 
@@ -93,9 +131,10 @@ bool MidiController::isMidiOn(uint8_t midiVal){
     return false ;
 }
 
-void MidiController::appendAllMidiOff(MidiNoteEvent root){
+void MidiController::appendAllMidiOff(){
+    MidiNoteEvent root = sequence_->getRootNote() ;
     for ( size_t i = 0 ; i < activeNotes_.size() ; ++i ){
-        if ( activeNotes_[i] != CONFIG_NULL_MIDI_VALUE && sequence_ptr_ ){
+        if ( activeNotes_[i] != CONFIG_NULL_MIDI_VALUE && sequence_ ){
             MidiNoteEvent m ;
             m.event.time.frames = root.event.time.frames ;
             m.event.body.type = root.event.body.type ;

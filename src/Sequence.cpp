@@ -10,7 +10,6 @@ Sequence::Sequence(const double* sampleRate):
     pattern_(),
     startFrames(),
     endFrames(),
-    isPressed_(false),
     Scale_(),
     root_(),
     frame_(0),
@@ -24,7 +23,6 @@ Sequence::Sequence(const double* sampleRate, Scale scale, int bpm, SequencePatte
     pattern_(),
     startFrames(),
     endFrames(),
-    isPressed_(false),
     Scale_(scale),
     root_(),
     frame_(0),
@@ -51,27 +49,20 @@ void Sequence::setBpm(int bpm){
     calculateFrameTiming() ;
 }
 
+void Sequence::setStatus(bool status){
+    if (status){
+        root_.msg[0] = LV2_MIDI_MSG_NOTE_ON ;
+    } else {
+        root_.msg[0] = LV2_MIDI_MSG_NOTE_OFF ;
+    }
+}
+
 void Sequence::setMidiStatus(LV2_Midi_Message_Type midiStatus){
     root_.msg[0] = midiStatus ;
 }
 
 void Sequence::setRootNote(MidiNoteEvent m){
     root_ = m ;
-    switch(root_.msg[0]){
-    case LV2_MIDI_MSG_NOTE_ON:
-        isPressed_ = true ;
-        frame_ = 0 ;
-        break ;
-    case LV2_MIDI_MSG_NOTE_OFF:
-        isPressed_ = false ;
-        frame_ = 0 ;
-        if (controller_ptr_){
-            controller_ptr_->appendAllMidiOff(getRootNote()) ;
-        }
-        break ;
-    default:
-        break ;
-    }
 }
 
 const MidiNoteEvent Sequence::getRootNote() const {
@@ -83,7 +74,7 @@ void Sequence::sequenceMidiNoteEvents(){
 
     for(size_t i = 0 ; i < pattern_.size() ; ++i ){
         auto n = pattern_.getSequenceNote(i);
-        if ( isPressed_ && frame_ == startFrames[i]){
+        if ( root_.msg[0] == LV2_MIDI_MSG_NOTE_ON && frame_ == startFrames[i]){
             uint8_t v = Scale_.getNearestScaleMidiNote(root_.msg[1], n.note) ;
             if ( v != CONFIG_NULL_MIDI_VALUE && !controller_ptr_->isMidiOn(v) ) {
                 out.event = root_.event ;
@@ -105,6 +96,30 @@ void Sequence::sequenceMidiNoteEvents(){
     }
 }
 
+void Sequence::handleMidiNoteEvent(const MidiNoteEvent m){
+    /*
+    CASES
+    1. ON MSG  + New Root Note: set for first time and start sequencing
+    2. OFF MSG + current Root Note, update and sequencing stops
+    3. ON MSG + NEW Root Note: update root note, reset frame, start sequencing
+    4. OFF MSG, doesn't match root note: do nothing
+    */
+    switch(m.msg[0]){
+    case LV2_MIDI_MSG_NOTE_ON:
+        root_ = m ;
+        frame_ = 0 ;
+        break ;
+    case LV2_MIDI_MSG_NOTE_OFF:
+        if ( root_.msg[1] == m.msg[1] ) {
+            root_ = m ;
+            frame_ = 0 ;
+        }
+        break ;
+    default:
+        break ;
+    }
+}
+
 void Sequence::calculateFrameTiming(){
     int framesPerBeat = 60.0 * *sampleRate_ / bpm_ ;
     duration_ = pattern_.getDuration() * framesPerBeat ;
@@ -114,9 +129,12 @@ void Sequence::calculateFrameTiming(){
         endFrames[i] = n.end * framesPerBeat ;
     }
 }
+
 void Sequence::tick(){
-    frame_ += 1 ;
-    if ( frame_ > duration_ ){
-        frame_ = 0 ;
+    if ( root_.msg[0] == LV2_MIDI_MSG_NOTE_ON ){
+        frame_ += 1 ;
+        if ( frame_ > duration_ ){
+            frame_ = 0 ;
+        }
     }
 }
