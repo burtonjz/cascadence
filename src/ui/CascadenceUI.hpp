@@ -11,7 +11,7 @@
 
 #include "BWidgets/Window.hpp"
 #include "BWidgets/ImageButton.hpp"
-// #include "BWidgets/ValueVSlider.hpp"
+#include "BWidgets/ValueVSlider.hpp"
 #include "BEvents/Event.hpp"
 
 #include "urids.hpp"
@@ -26,7 +26,6 @@ private:
     const LV2_Feature *const *features_ ;
 
     LV2_Atom_Forge forge_ ;
-    uint8_t forgeBuf_[1024] ;
     LV2_URID_Map* uridMap_ ;
     Urids urids_ ;
 
@@ -34,7 +33,7 @@ private:
     std::vector<BWidgets::Widget*> widgets_ ;
 
     BWidgets::ImageButton  wBypass_ ;
-    // BWidgets::ValueVSlider wBpm_ ;
+    BWidgets::ValueVSlider wBpm_ ;
 
 public:
     CascadenceUI(
@@ -54,7 +53,9 @@ public:
 
     LV2UI_Widget getTopLevelWidget();
 
-    void valueChangedCallBack(BEvents::Event* ev);
+    // callback functions
+    void bypassCallback(BEvents::Event* ev);
+    void bpmCallback(BEvents::Event* ev);
 
     template<typename T>
     void sendValueChangedAtom(LV2_URID urid, T value);

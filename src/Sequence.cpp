@@ -39,7 +39,7 @@ void Sequence::initialize(LV2_URID_Map* map){
 
 void Sequence::onParameterChanged(const StateMapItem* item){
     if ( item->urid == map_->map(map_->handle, CASCADENCE__bpm)){
-        LV2_Atom_Int* atom = reinterpret_cast<LV2_Atom_Bool*>(item->value);
+        LV2_Atom_Int* atom = reinterpret_cast<LV2_Atom_Int*>(item->value);
         setBpm(atom->body) ;
     }
 }

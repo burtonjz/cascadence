@@ -10,6 +10,7 @@
 #include <algorithm>
 #include <cstring>
 
+#include "iostream"
 
 ParameterController::ParameterController():
     urids_(nullptr),
@@ -24,11 +25,18 @@ void ParameterController::initialize(const LV2_Feature *const *features, LV2_Ato
     map_ = map ;
     urids_ = urids ;
 
+    // initialize state parameter dictionary
     dict_[0].uri  = CASCADENCE__bypass ;
     dict_[0].urid = map_->map(map_->handle, dict_[0].uri) ;
     dict_[0].value = reinterpret_cast<LV2_Atom*>(&State_.bypass) ;
     dict_[0].value->size = sizeof(State_.bypass) - sizeof(LV2_Atom) ;
     dict_[0].value->type = map_->map(map_->handle, LV2_ATOM__Bool) ;
+
+    dict_[1].uri  = CASCADENCE__bpm ;
+    dict_[1].urid = map_->map(map_->handle, dict_[1].uri) ;
+    dict_[1].value = reinterpret_cast<LV2_Atom*>(&State_.bpm) ;
+    dict_[1].value->size = sizeof(State_.bpm) - sizeof(LV2_Atom) ;
+    dict_[1].value->type = map_->map(map_->handle, LV2_ATOM__Int) ;
 }
 
 void ParameterController::registerObserver(ParameterObserver* observer){
@@ -57,12 +65,14 @@ LV2_State_Status ParameterController::setParameter(LV2_URID key, uint32_t size, 
         }
     );
 
+    std::cout << "poo poo pee pee " << key << std::endl ;
     if (item == dict_.end()) return LV2_STATE_ERR_NO_PROPERTY ;
 
     // make sure the type matches the state item type
     if (item->value->type != type) return LV2_STATE_ERR_BAD_TYPE ;
 
     // Set state value
+    std::cout << "Setting Parameter value for " << item->uri << std::endl ;
     memcpy(item->value + 1, body, size);
     item->value->size = size ;
     notifyObservers(item);
