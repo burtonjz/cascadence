@@ -65,14 +65,12 @@ LV2_State_Status ParameterController::setParameter(LV2_URID key, uint32_t size, 
         }
     );
 
-    std::cout << "poo poo pee pee " << key << std::endl ;
     if (item == dict_.end()) return LV2_STATE_ERR_NO_PROPERTY ;
 
     // make sure the type matches the state item type
     if (item->value->type != type) return LV2_STATE_ERR_BAD_TYPE ;
 
     // Set state value
-    std::cout << "Setting Parameter value for " << item->uri << std::endl ;
     memcpy(item->value + 1, body, size);
     item->value->size = size ;
     notifyObservers(item);
