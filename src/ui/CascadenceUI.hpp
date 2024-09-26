@@ -12,6 +12,7 @@
 #include "BWidgets/Window.hpp"
 #include "BWidgets/ImageButton.hpp"
 #include "BWidgets/ValueVSlider.hpp"
+#include "BWidgets/ComboBox.hpp"
 #include "BEvents/Event.hpp"
 
 #include "urids.hpp"
@@ -34,6 +35,7 @@ private:
 
     BWidgets::ImageButton  wBypass_ ;
     BWidgets::ValueVSlider wBpm_ ;
+    BWidgets::ComboBox     wScaleType_ ;
 
 public:
     CascadenceUI(
@@ -56,6 +58,7 @@ public:
     // callback functions
     void bypassCallback(BEvents::Event* ev);
     void bpmCallback(BEvents::Event* ev);
+    void scaleTypeCallback(BEvents::Event* ev);
 
     template<typename T>
     void sendValueChangedAtom(LV2_URID urid, T value);

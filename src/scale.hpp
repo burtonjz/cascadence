@@ -33,7 +33,7 @@ public:
 
     /**
      * @brief repopulate the scale with new inputs
-     * 
+     *
      * @param tonic the tonic note
      * @param typ the scale type
      */
@@ -41,19 +41,25 @@ public:
 
     /**
      * @brief Get the Scale array (as Midi Values)
-     * 
-     * @return const std::pair<size_t,Note*> 
+     *
+     * @return const std::pair<size_t,Note*>
      */
     const std::pair<uint8_t*,size_t> getScale() ;
 
     /**
      * @brief get closest scale value. Rounds down.
-     * 
+     *
      * @param v reference midi value
      * @param offset scale position offset
      * @return uint8_t midi value
      */
     uint8_t getNearestScaleMidiNote(uint8_t v, int offset = 0) ;
+
+    /**
+     * @brief update the scale type of the scale
+     *
+     */
+    void setScaleType(ScaleType typ);
 
 private:
     /**
@@ -63,7 +69,7 @@ private:
 
     /**
      * @brief true modulo (needed for negative numbers
-     * 
+     *
      */
     int modulo(int a, int b);
 

@@ -2,15 +2,15 @@
 #include <lv2/lv2plug.in/ns/ext/atom/forge.h>
 #include <lv2/lv2plug.in/ns/lv2core/lv2_util.h>
 
-#include <type_traits>
-
 #include "BEvents/Event.hpp"
 #include "BStyles/Status.hpp"
-#include "BWidgets/Supports/ValueableTyped.hpp"
-
-#include "config.hpp"
-#include "CascadenceUI.hpp"
 #include "pugl/pugl.h"
+
+#include "CascadenceUI.hpp"
+#include "config.hpp"
+#include "scaleType.hpp"
+
+#include <iostream>
 
 CascadenceUI::CascadenceUI(
     LV2UI_Write_Function writeFunction,
@@ -20,8 +20,8 @@ CascadenceUI::CascadenceUI(
     const LV2_Feature *const *features
 ):
     Window(
-        BWIDGETS_DEFAULT_WINDOW_WIDTH,
-        BWIDGETS_DEFAULT_WINDOW_HEIGHT,
+        1200,
+        800,
         reinterpret_cast<PuglNativeView>(parentXWindow),
         0,
         "Cascadence",
@@ -39,7 +39,8 @@ CascadenceUI::CascadenceUI(
     widgets_(),
     wBypass_(100,100,200,100,
         bundlePath + "assets/wBypass.png"),
-    wBpm_(310,100,50,400, CONFIG_DEFAULT_BPM, 20, 300, 5)
+    wBpm_(310,100,50,100, CONFIG_DEFAULT_BPM, 20, 300, 5),
+    wScaleType_(100,250,100,50)
 {
 
     std::cout << "[Cascadence] This delay seems to stop a segmentation fault..." << std::endl ;
@@ -58,6 +59,7 @@ CascadenceUI::CascadenceUI(
     // std::cout << "[Cascadence] 5" << std::endl ;
 
     // set child widget properties
+    // bypass
     wBypass_.setClickable(true);
     wBypass_.setToggleable(true);
     wBypass_.setCallbackFunction(
@@ -65,6 +67,10 @@ CascadenceUI::CascadenceUI(
         [this] (BEvents::Event* ev) { bypassCallback(ev) ; }
     );
 
+    add(&wBypass_) ;
+    widgets_.push_back(&wBypass_) ;
+
+    // bpm
     wBpm_.setClickable(true);
     wBpm_.setDraggable(true);
     wBpm_.setCallbackFunction(
@@ -72,12 +78,26 @@ CascadenceUI::CascadenceUI(
         [this] (BEvents::Event* ev) { bpmCallback(ev) ; }
     );
 
-    // add child widgets to parent widget and container
-    add(&wBypass_) ;
-    widgets_.push_back(&wBypass_) ;
-
     add(&wBpm_);
     widgets_.push_back(&wBpm_);
+
+    // scale type
+    for ( size_t i = 0; i < static_cast<size_t>(ScaleType::N_SCALES); ++i){
+        wScaleType_.addItem(getScaleString(static_cast<ScaleType>(i))) ;
+    }
+    wScaleType_.setCallbackFunction(
+        BEvents::Event::EventType::valueChangedEvent,
+        [this] (BEvents::Event* ev) {scaleTypeCallback(ev) ; }
+    );
+
+    add(&wScaleType_);
+    widgets_.push_back(&wScaleType_);
+
+
+    // add child widgets to parent widget and container
+
+
+
 }
 
 void CascadenceUI::portEvent(
@@ -120,6 +140,11 @@ void CascadenceUI::bypassCallback(BEvents::Event* ev){
 void CascadenceUI::bpmCallback(BEvents::Event* ev){
     int value = wBpm_.getValue();
     sendValueChangedAtom<int>(urids_.plugBpm, value);
+}
+
+void CascadenceUI::scaleTypeCallback(BEvents::Event* ev){
+    int value = wScaleType_.getValue() - 1 ;
+    sendValueChangedAtom<int>(urids_.plugScaleType, value);
 }
 
 template<typename T>

@@ -37,6 +37,13 @@ void ParameterController::initialize(const LV2_Feature *const *features, LV2_Ato
     dict_[1].value = reinterpret_cast<LV2_Atom*>(&State_.bpm) ;
     dict_[1].value->size = sizeof(State_.bpm) - sizeof(LV2_Atom) ;
     dict_[1].value->type = map_->map(map_->handle, LV2_ATOM__Int) ;
+
+    dict_[2].uri  = CASCADENCE__scaleType ;
+    dict_[2].urid = map_->map(map_->handle, dict_[2].uri) ;
+    dict_[2].value = reinterpret_cast<LV2_Atom*>(&State_.scaleType) ;
+    dict_[2].value->size = sizeof(State_.scaleType) - sizeof(LV2_Atom) ;
+    dict_[2].value->type = map_->map(map_->handle, LV2_ATOM__Int) ;
+
 }
 
 void ParameterController::registerObserver(ParameterObserver* observer){

@@ -2,6 +2,8 @@
 #include "MidiController.hpp"
 #include "config.hpp"
 #include "scale.hpp"
+#include "scaleType.hpp"
+#include "urids.hpp"
 #include <lv2/lv2plug.in/ns/ext/midi/midi.h>
 
 Sequence::Sequence(const double* sampleRate):
@@ -41,6 +43,10 @@ void Sequence::onParameterChanged(const StateMapItem* item){
     if ( item->urid == map_->map(map_->handle, CASCADENCE__bpm)){
         LV2_Atom_Int* atom = reinterpret_cast<LV2_Atom_Int*>(item->value);
         setBpm(atom->body) ;
+    }
+    if ( item->urid == map_->map(map_->handle, CASCADENCE__scaleType)){
+        LV2_Atom_Int* atom = reinterpret_cast<LV2_Atom_Int*>(item->value);
+        Scale_.setScaleType(static_cast<ScaleType>(atom->body));
     }
 }
 

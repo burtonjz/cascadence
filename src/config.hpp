@@ -5,7 +5,7 @@
 #include <cstddef>
 
 constexpr uint32_t CONFIG_DEFAULT_BPM = 120 ;
-constexpr size_t CONFIG_NUM_STATE_PARAMETERS = 2 ;
+constexpr size_t CONFIG_NUM_STATE_PARAMETERS = 3 ;
 
 constexpr size_t CONFIG_MAX_SEQUENCE_SIZE = 16 ;
 

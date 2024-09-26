@@ -28,6 +28,9 @@ plug:bpm a lv2:Parameter ;
     rdfs:label "bpm" ;
     rdfs:range atom:Int .
 
+plug:scaleType a lv2:Parameter ;
+    rdfs:label "scale type" ;
+    rdfs:range atom:Int .
 
 <https://github.com/burtonjz/cascadence> a lv2:Plugin, lv2:MidiPlugin ;
     lv2:binary <Cascadence.so> ;
@@ -79,6 +82,7 @@ plug:bpm a lv2:Parameter ;
 
     # define plugin default state
     state:state [
-        plug:bypass false ;
-        plug:bpm    120   ;
+        plug:bypass    false ;
+        plug:bpm       120   ;
+        plug:scaleType 1     ;
     ] .

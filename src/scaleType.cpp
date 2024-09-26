@@ -19,5 +19,23 @@ std::pair<uint8_t*, size_t> getScaleIntervals(ScaleType stype){
     case ScaleType::CHROMATIC:
         n = {0,1,2,3,4,5,6,7,8,9,10,11};
         return std::make_pair(n.data(), n.size()) ;
+    default:
+        return std::make_pair(n.data(),0) ;
     }
 }
+
+constexpr std::array<const char*, static_cast<int>(ScaleType::N_SCALES)> scaleNames = {
+    "Major",
+    "Natural Minor",
+    "Melodic Minor",
+    "Harmonic Minor",
+    "Chromatic"
+};
+
+std::string getScaleString(ScaleType stype){
+    size_t i = static_cast<size_t>(stype);
+    if ( i < static_cast<size_t>(ScaleType::N_SCALES)){
+        return scaleNames[i] ;
+    }
+    return "Unknown Scale" ;
+};

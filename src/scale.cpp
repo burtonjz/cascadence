@@ -1,5 +1,6 @@
 #include "scale.hpp"
 #include "config.hpp"
+#include "scaleType.hpp"
 
 #include <cmath>
 #include <algorithm>
@@ -40,6 +41,11 @@ void Scale::populateScale(){
         scaleNotes_[i] = modulo(static_cast<uint8_t>(tonic_) + intervals.first[i], 12);
     }
     std::sort(scaleNotes_.begin(),scaleNotes_.begin() + scaleLength_);
+}
+
+void Scale::setScaleType(ScaleType typ){
+    type_ = typ ;
+    populateScale() ;
 }
 
 uint8_t Scale::getNearestScaleMidiNote(uint8_t v, int offset ){
