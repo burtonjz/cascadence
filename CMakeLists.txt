@@ -65,6 +65,7 @@ target_link_options(Cascadence PRIVATE
 set(UI_DIR src/ui)
 file(GLOB UI "${UI_DIR}/*.cpp")
 list(APPEND UI "${SRC_DIR}/scaleType.cpp")
+list(APPEND UI "${SRC_DIR}/note.cpp")
 
 # Set SO
 add_library(Cascadence-ui SHARED ${UI})

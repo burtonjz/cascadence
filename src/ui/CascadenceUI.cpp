@@ -9,7 +9,10 @@
 #include "CascadenceUI.hpp"
 #include "config.hpp"
 #include "scaleType.hpp"
+#include "note.hpp"
 
+#include <map>
+#include <string>
 #include <iostream>
 
 CascadenceUI::CascadenceUI(
@@ -40,7 +43,9 @@ CascadenceUI::CascadenceUI(
     wBypass_(100,100,200,100,
         bundlePath + "assets/wBypass.png"),
     wBpm_(310,100,50,100, CONFIG_DEFAULT_BPM, 20, 300, 5),
-    wScaleType_(100,250,100,50)
+    wScaleType_(100,250,100,50),
+    wScaleTonic_(210, 250, 100, 50)
+
 {
 
     std::cout << "[Cascadence] This delay seems to stop a segmentation fault..." << std::endl ;
@@ -93,10 +98,19 @@ CascadenceUI::CascadenceUI(
     add(&wScaleType_);
     widgets_.push_back(&wScaleType_);
 
+    // scale tonic
+    auto noteStrings = getNoteStrings();
+    for ( auto item : noteStrings ){
+        wScaleTonic_.addItem(item);
+    }
 
-    // add child widgets to parent widget and container
+    wScaleTonic_.setCallbackFunction(
+        BEvents::Event::EventType::valueChangedEvent,
+        [this] (BEvents::Event* ev) {scaleTonicCallback(ev) ; }
+    );
 
-
+    add(&wScaleTonic_);
+    widgets_.push_back(&wScaleTonic_);
 
 }
 
@@ -145,6 +159,11 @@ void CascadenceUI::bpmCallback(BEvents::Event* ev){
 void CascadenceUI::scaleTypeCallback(BEvents::Event* ev){
     int value = wScaleType_.getValue() - 1 ;
     sendValueChangedAtom<int>(urids_.plugScaleType, value);
+}
+
+void CascadenceUI::scaleTonicCallback(BEvents::Event* ev){
+    int value = static_cast<int>(getNotes()[wScaleTonic_.getValue() - 1]);
+    sendValueChangedAtom<int>(urids_.plugScaleTonic, value);
 }
 
 template<typename T>

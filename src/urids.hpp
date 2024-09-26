@@ -13,9 +13,10 @@
 
 // define plugin URIs
 #define CASCADENCE_URI "https://github.com/burtonjz/cascadence"
-#define CASCADENCE__bypass    CASCADENCE_URI "#bypass"
-#define CASCADENCE__bpm       CASCADENCE_URI "#bpm"
-#define CASCADENCE__scaleType CASCADENCE_URI "#scaleType"
+#define CASCADENCE__bypass     CASCADENCE_URI "#bypass"
+#define CASCADENCE__bpm        CASCADENCE_URI "#bpm"
+#define CASCADENCE__scaleType  CASCADENCE_URI "#scaleType"
+#define CASCADENCE__scaleTonic CASCADENCE_URI "#scaleTonic"
 
 struct Urids {
     LV2_URID plugin ;
@@ -38,6 +39,7 @@ struct Urids {
     LV2_URID plugBypass ;
     LV2_URID plugBpm    ;
     LV2_URID plugScaleType ;
+    LV2_URID plugScaleTonic ;
 
 
     void initialize(LV2_URID_Map* m){
@@ -58,6 +60,7 @@ struct Urids {
         plugBypass        = m->map(m->handle, CASCADENCE__bypass);
         plugBpm           = m->map(m->handle, CASCADENCE__bpm);
         plugScaleType     = m->map(m->handle, CASCADENCE__scaleType);
+        plugScaleTonic    = m->map(m->handle, CASCADENCE__scaleTonic);
     }
 };
 

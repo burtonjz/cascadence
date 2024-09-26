@@ -61,6 +61,12 @@ public:
      */
     void setScaleType(ScaleType typ);
 
+    /**
+     * @brief update the tonic of the scale
+     *
+     */
+    void setTonic(Note tonic);
+
 private:
     /**
      * @brief populates the notes array with the currently defined scale

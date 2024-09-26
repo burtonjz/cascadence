@@ -36,6 +36,7 @@ private:
     BWidgets::ImageButton  wBypass_ ;
     BWidgets::ValueVSlider wBpm_ ;
     BWidgets::ComboBox     wScaleType_ ;
+    BWidgets::ComboBox     wScaleTonic_ ;
 
 public:
     CascadenceUI(
@@ -59,6 +60,7 @@ public:
     void bypassCallback(BEvents::Event* ev);
     void bpmCallback(BEvents::Event* ev);
     void scaleTypeCallback(BEvents::Event* ev);
+    void scaleTonicCallback(BEvents::Event* ev);
 
     template<typename T>
     void sendValueChangedAtom(LV2_URID urid, T value);

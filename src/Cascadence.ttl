@@ -32,6 +32,10 @@ plug:scaleType a lv2:Parameter ;
     rdfs:label "scale type" ;
     rdfs:range atom:Int .
 
+plug:scaleTonic a lv2:Parameter ;
+    rdfs:label "scale tonic" ;
+    rdfs:range atom:Int .
+
 <https://github.com/burtonjz/cascadence> a lv2:Plugin, lv2:MidiPlugin ;
     lv2:binary <Cascadence.so> ;
     doap:name "Cascadence" ;
@@ -82,7 +86,8 @@ plug:scaleType a lv2:Parameter ;
 
     # define plugin default state
     state:state [
-        plug:bypass    false ;
-        plug:bpm       120   ;
-        plug:scaleType 1     ;
+        plug:bypass     false ;
+        plug:bpm        120   ;
+        plug:scaleType  1     ;
+        plug:scaleTonic 0     ;
     ] .

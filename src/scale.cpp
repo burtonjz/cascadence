@@ -48,6 +48,11 @@ void Scale::setScaleType(ScaleType typ){
     populateScale() ;
 }
 
+void Scale::setTonic(Note tonic){
+    tonic_ = tonic ;
+    populateScale() ;
+}
+
 uint8_t Scale::getNearestScaleMidiNote(uint8_t v, int offset ){
     uint8_t baseInput = modulo(v,12);
     uint8_t inputOctave = (v / 12) - 1 ;

@@ -2,6 +2,8 @@
 #define __TONIC_HPP_
 
 #include <cstdint>
+#include <string>
+#include <array>
 
 enum class Note : uint8_t {
     C = 0,
@@ -21,7 +23,19 @@ enum class Note : uint8_t {
     ASHARP = 10,
     BFLAT = 10,
     B = 11,
-    NULL_NOTE = 12 
+    NULL_NOTE = 12
 };
+
+/**
+ * @brief returns an array of notes
+ *
+ */
+std::array<Note, 17> getNotes();
+
+/**
+ * @brief returns an array of stringnames for each note
+ *
+ */
+std::array<std::string, 17> getNoteStrings();
 
 #endif // __TONIC_HPP_

@@ -9,6 +9,7 @@ struct PluginState {
     LV2_Atom_Bool bypass ;
     LV2_Atom_Int  bpm ;
     LV2_Atom_Int scaleType ;
+    LV2_Atom_Int scaleTonic ;
 } ;
 
 struct StateMapItem {
