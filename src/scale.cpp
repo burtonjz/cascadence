@@ -44,13 +44,11 @@ void Scale::populateScale(){
 }
 
 void Scale::setScaleType(ScaleType typ){
-    type_ = typ ;
-    populateScale() ;
+    setScale(tonic_,typ);
 }
 
 void Scale::setTonic(Note tonic){
-    tonic_ = tonic ;
-    populateScale() ;
+    setScale(tonic,type_);
 }
 
 uint8_t Scale::getNearestScaleMidiNote(uint8_t v, int offset ){

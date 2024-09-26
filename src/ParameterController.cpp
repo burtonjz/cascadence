@@ -44,7 +44,7 @@ void ParameterController::initialize(const LV2_Feature *const *features, LV2_Ato
     dict_[2].value->size = sizeof(State_.scaleType) - sizeof(LV2_Atom) ;
     dict_[2].value->type = map_->map(map_->handle, LV2_ATOM__Int) ;
 
-    dict_[3].uri  = CASCADENCE__scaleType ;
+    dict_[3].uri  = CASCADENCE__scaleTonic ;
     dict_[3].urid = map_->map(map_->handle, dict_[3].uri) ;
     dict_[3].value = reinterpret_cast<LV2_Atom*>(&State_.scaleTonic) ;
     dict_[3].value->size = sizeof(State_.scaleType) - sizeof(LV2_Atom) ;
