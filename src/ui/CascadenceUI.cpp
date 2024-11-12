@@ -44,8 +44,8 @@ CascadenceUI::CascadenceUI(
         bundlePath + "assets/wBypass.png"),
     wBpm_(310,100,50,100, CONFIG_DEFAULT_BPM, 20, 300, 5),
     wScaleType_(100,250,100,50),
-    wScaleTonic_(210, 250, 100, 50)
-
+    wScaleTonic_(210, 250, 100, 50),
+    wTest_(450,450)
 {
 
     std::cout << "[Cascadence] This delay seems to stop a segmentation fault..." << std::endl ;
@@ -112,6 +112,17 @@ CascadenceUI::CascadenceUI(
     add(&wScaleTonic_);
     widgets_.push_back(&wScaleTonic_);
 
+    // sequence notes
+    add(&wTest_);
+    widgets_.push_back(&wTest_);
+
+    // wSequence_.setDraggable(true);
+    // wSequence_.setEditMode(BWidgets::Pattern<>::EditMode::select);
+
+    // add(&wSequence_);
+    // widgets_.push_back(&wSequence_);
+
+    std::cout << "[Cascadence] Instantiation Complete." << std::endl ;
 }
 
 void CascadenceUI::portEvent(
