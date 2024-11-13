@@ -45,7 +45,6 @@ SequenceFrame::SequenceFrame(std::string bundlePath, const double x, const doubl
 void SequenceFrame::clickedCallback(BEvents::Event* event){
     if ( !event ) return ;
     if ( event->getEventType() != BEvents::Event::EventType::buttonClickEvent ) return ;
-    std::cout << "Callback triggered " << std::endl ;
 
     BEvents::PointerEvent* ev = dynamic_cast<BEvents::PointerEvent*>(event) ;
 
