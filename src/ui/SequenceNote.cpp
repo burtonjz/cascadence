@@ -1,5 +1,4 @@
 #include "SequenceNote.hpp"
-#include "BUtilities/Point.hpp"
 #include "BDevices/MouseButton.hpp"
 
 SequenceNote::SequenceNote(double x, double y, double width, double height, int nUnits):
@@ -7,6 +6,8 @@ SequenceNote::SequenceNote(double x, double y, double width, double height, int 
     pos_(x,y),
     unitSize_(width, height),
     numUnits_(nUnits),
+    noteIndex_(0),
+    startTime_(0),
     dragEdit_(false),
     dragUnits_(0)
 {
@@ -29,7 +30,7 @@ SequenceNote::SequenceNote(double x, double y, double width, double height, int 
 
     // set widget position and size
     setUnitSize(unitSize_.first, unitSize_.second);
-    setPosition(pos_.first, pos_.second);
+    setPosition(pos_);
 }
 
 SequenceNote::SequenceNote():
@@ -41,9 +42,17 @@ void SequenceNote::setUnitSize(const double width, const double height){
     resize(unitSize_.first * numUnits_ , unitSize_.second);
 }
 
-void SequenceNote::setPosition(const double x, const double y){
-    pos_ = std::make_pair(x,y);
-    moveTo(pos_.first,pos_.second);
+BUtilities::Point<> SequenceNote::getPosition() const {
+    return pos_ ;
+}
+
+void SequenceNote::setPosition(BUtilities::Point<> pt){
+    pos_ = pt ;
+    moveTo(pt);
+}
+
+int SequenceNote::getNumUnits() const {
+    return numUnits_ ;
 }
 
 void SequenceNote::setNumUnits(int units){
@@ -51,6 +60,22 @@ void SequenceNote::setNumUnits(int units){
         numUnits_ = units ;
         resize(unitSize_.first * numUnits_, unitSize_.second);
     }
+}
+
+int SequenceNote::getNoteIndex() const {
+    return noteIndex_ ;
+}
+
+void SequenceNote::setNoteIndex(int idx){
+    noteIndex_ = idx ;
+}
+
+int SequenceNote::getStartIndex() const {
+    return startTime_ ;
+}
+
+void SequenceNote::setStartIndex(int idx){
+    startTime_ = idx ;
 }
 
 void SequenceNote::draggedCallback(BEvents::Event* event){

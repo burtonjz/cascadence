@@ -13,12 +13,9 @@
 #include "BWidgets/ImageButton.hpp"
 #include "BWidgets/ValueVSlider.hpp"
 #include "BWidgets/ComboBox.hpp"
-#include "BWidgets/Pattern.hpp"
-#include "BWidgets/Pad.hpp"
 #include "BEvents/Event.hpp"
-#include "BWidgets/Supports/ValidatableRange.hpp"
 
-#include "ui/SequenceNote.hpp"
+#include "ui/SequenceFrame.hpp"
 #include "urids.hpp"
 
 
@@ -41,8 +38,7 @@ private:
     BWidgets::ValueVSlider wBpm_ ;
     BWidgets::ComboBox     wScaleType_ ;
     BWidgets::ComboBox     wScaleTonic_ ;
-    SequenceNote           wTest_ ;
-    // BWidgets::Pattern<>    wSequence_ ;
+    SequenceFrame          wSequence_ ;
 
 public:
     CascadenceUI(

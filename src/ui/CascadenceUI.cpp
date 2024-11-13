@@ -7,6 +7,7 @@
 #include "pugl/pugl.h"
 
 #include "CascadenceUI.hpp"
+#include "uiConfig.hpp"
 #include "config.hpp"
 #include "scaleType.hpp"
 #include "note.hpp"
@@ -23,8 +24,8 @@ CascadenceUI::CascadenceUI(
     const LV2_Feature *const *features
 ):
     Window(
-        1200,
-        800,
+        UI_WIDTH,
+        UI_HEIGHT,
         reinterpret_cast<PuglNativeView>(parentXWindow),
         0,
         "Cascadence",
@@ -40,12 +41,13 @@ CascadenceUI::CascadenceUI(
     uridMap_(nullptr),
     urids_(),
     widgets_(),
-    wBypass_(100,100,200,100,
+    wBypass_(UI_BYPASS_X,UI_BYPASS_Y,UI_BYPASS_WIDTH,UI_BYPASS_HEIGHT,
         bundlePath + "assets/wBypass.png"),
-    wBpm_(310,100,50,100, CONFIG_DEFAULT_BPM, 20, 300, 5),
-    wScaleType_(100,250,100,50),
-    wScaleTonic_(210, 250, 100, 50),
-    wTest_(450,450)
+    wBpm_(UI_BPM_X,UI_BPM_Y,UI_BPM_WIDTH,UI_BPM_HEIGHT,
+         CONFIG_DEFAULT_BPM, 20, 300, 5),
+    wScaleType_(UI_SCALE_TYPE_X,UI_SCALE_TYPE_Y,UI_SCALE_TYPE_WIDTH,UI_SCALE_TYPE_HEIGHT),
+    wScaleTonic_(UI_SCALE_TONIC_X,UI_SCALE_TONIC_Y,UI_SCALE_TONIC_WIDTH,UI_SCALE_TONIC_HEIGHT),
+    wSequence_(bundlePath)
 {
 
     std::cout << "[Cascadence] This delay seems to stop a segmentation fault..." << std::endl ;
@@ -113,14 +115,8 @@ CascadenceUI::CascadenceUI(
     widgets_.push_back(&wScaleTonic_);
 
     // sequence notes
-    add(&wTest_);
-    widgets_.push_back(&wTest_);
-
-    // wSequence_.setDraggable(true);
-    // wSequence_.setEditMode(BWidgets::Pattern<>::EditMode::select);
-
-    // add(&wSequence_);
-    // widgets_.push_back(&wSequence_);
+    add(&wSequence_);
+    widgets_.push_back(&wSequence_);
 
     std::cout << "[Cascadence] Instantiation Complete." << std::endl ;
 }
