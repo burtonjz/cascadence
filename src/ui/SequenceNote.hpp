@@ -16,7 +16,6 @@ class SequenceNote :
 {
 private:
     BUtilities::Point<> pos_ ; // widget position (defined by top left corner)
-    std::pair<int, int> unitSize_ ; // size of a given unit
     int numUnits_ ; // number of time units the button will encompass
     int noteIndex_ ; // note index for sequence pattern
     int startTime_ ; // time index for start of note
@@ -35,14 +34,6 @@ public:
         double height = UI_SEQUENCE_NOTE_UNIT_HEIGHT,
         int nUnits = 1
     );
-
-    /**
-     * @brief set the size of the object for the smallest unit (16th note)
-     *
-     * @param width width
-     * @param height height
-     */
-    void setUnitSize(const double width, const double height);
 
     /**
      * @brief get position
@@ -98,18 +89,32 @@ public:
     void setStartIndex(int idx);
 
     /**
-     * @brief callback function for dragging action
+     * @brief return whether the note is in drag mode
      *
-     * @param event Passed Event.
      */
-    void draggedCallback(BEvents::Event* event);
+    bool isDragMode() const ;
 
     /**
-     * @brief callback function for clicking action
+     * @brief set the drag edit mode
      *
-     * @param event Passed Event.
+     * @param dragged
      */
-    void unclickedCallback(BEvents::Event* event);
+    void setDragMode(bool dragged);
+
+    /**
+     * @brief set the dragged time units quantity
+     *
+     * @param units number of time units.
+     */
+    void setDragTimeUnits(int units) ;
+
+    /**
+     * @brief update the note time units to the dragged value
+     *
+     */
+    void updateToDragTime();
+
+
 };
 
 

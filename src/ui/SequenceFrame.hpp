@@ -59,7 +59,21 @@ public:
      *
      * @param event Passed Event.
      */
-    void clickedCallback(BEvents::Event* event);
+    void frameClickedCallback(BEvents::Event* event);
+
+        /**
+     * @brief callback function for dragging action
+     *
+     * @param event Passed Event.
+     */
+    void noteDraggedCallback(BEvents::Event* event);
+
+    /**
+     * @brief callback function for clicking action
+     *
+     * @param event Passed Event.
+     */
+    void noteClickedCallback(BEvents::Event* event);
 
 private:
     bool clickedEmptySlot(BUtilities::Point<> pt) const ;

@@ -30,19 +30,28 @@ SequenceFrame::SequenceFrame(std::string bundlePath, const double x, const doubl
         add(&notes_[i]);
         notes_[i].setPosition(BUtilities::Point<>(-50,0));
         notes_[i].hide();
+        notes_[i].setCallbackFunction(
+            BEvents::Event::EventType::pointerDragEvent,
+            [this](BEvents::Event* ev){noteDraggedCallback(ev);}
+        );
+
+        notes_[i].setCallbackFunction(
+            BEvents::Event::EventType::buttonReleaseEvent,
+            [this](BEvents::Event* ev){noteClickedCallback(ev);}
+        );
     }
 
     // set bg
     setBackground(BStyles::Fill(bundlePath_ + "/assets/wSequenceFrameBG.png"));
 
-    // define callback functions
+    // set frame callback functions
     setCallbackFunction(
         BEvents::Event::EventType::buttonClickEvent,
-        [this](BEvents::Event* ev){clickedCallback(ev);}
+        [this](BEvents::Event* ev){frameClickedCallback(ev);}
     );
 }
 
-void SequenceFrame::clickedCallback(BEvents::Event* event){
+void SequenceFrame::frameClickedCallback(BEvents::Event* event){
     if ( !event ) return ;
     if ( event->getEventType() != BEvents::Event::EventType::buttonClickEvent ) return ;
 
@@ -71,6 +80,34 @@ void SequenceFrame::clickedCallback(BEvents::Event* event){
         std::cout << ", start_index: " << dest.x << ", note_index: " << dest.y << ", dest_point: " << pt.x << ", " << pt.y << std::endl ;
         notes_[i].setPosition(pt);
         notes_[i].show();
+    }
+}
+
+void SequenceFrame::noteDraggedCallback(BEvents::Event* event){
+    if ( !event ) return ;
+    if ( event->getEventType() != BEvents::Event::EventType::pointerDragEvent ) return ;
+
+    BEvents::PointerEvent* ev = dynamic_cast<BEvents::PointerEvent*>(event);
+    SequenceNote* note = dynamic_cast<SequenceNote*>(ev->getWidget());
+
+    // keep track of how many units the pointer has been dragged
+    BUtilities::Point pos = ev->getPosition();
+    note->setDragMode(true) ;
+    note->setDragTimeUnits(std::round(pos.x / UI_SEQUENCE_NOTE_UNIT_WIDTH));
+}
+
+
+void SequenceFrame::noteClickedCallback(BEvents::Event* event){
+    if( !event ) return ;
+    if ( event->getEventType() != BEvents::Event::EventType::buttonReleaseEvent ) return ;
+
+    BEvents::PointerEvent* ev = dynamic_cast<BEvents::PointerEvent*>(event);
+    SequenceNote* note = dynamic_cast<SequenceNote*>(ev->getWidget());
+
+    // otherwise, check to see if this event comes with an unclick action
+    if (note->isDragMode() && ev->getButton() == BDevices::MouseButton::ButtonType::left ){
+        note->setDragMode(false) ;
+        note->updateToDragTime();
     }
 }
 

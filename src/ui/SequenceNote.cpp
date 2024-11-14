@@ -4,8 +4,6 @@
 SequenceNote::SequenceNote(double x, double y, double width, double height, int nUnits):
     Button(),
     pos_(x,y),
-    unitSize_(width, height),
-    numUnits_(nUnits),
     noteIndex_(0),
     startTime_(0),
     dragEdit_(false),
@@ -14,33 +12,18 @@ SequenceNote::SequenceNote(double x, double y, double width, double height, int 
     // set properties
     setActivatable(true);
     setClickable(true);
-    setToggleable(false);
+    setToggleable(true);
     setKeyPressable(false);
     setDraggable(true);
 
-    setCallbackFunction(
-        BEvents::Event::EventType::pointerDragEvent,
-        [this](BEvents::Event* ev){draggedCallback(ev);}
-    );
-
-    setCallbackFunction(
-        BEvents::Event::EventType::buttonReleaseEvent,
-        [this](BEvents::Event* ev){unclickedCallback(ev);}
-    );
-
     // set widget position and size
-    setUnitSize(unitSize_.first, unitSize_.second);
     setPosition(pos_);
+    setNumUnits(nUnits);
 }
 
 SequenceNote::SequenceNote():
     SequenceNote(0.0,0.0)
 {}
-
-void SequenceNote::setUnitSize(const double width, const double height){
-    unitSize_ = std::make_pair(width, height);
-    resize(unitSize_.first * numUnits_ , unitSize_.second);
-}
 
 BUtilities::Point<> SequenceNote::getPosition() const {
     return pos_ ;
@@ -58,7 +41,7 @@ int SequenceNote::getNumUnits() const {
 void SequenceNote::setNumUnits(int units){
     if ( units > 0 ){
         numUnits_ = units ;
-        resize(unitSize_.first * numUnits_, unitSize_.second);
+        resize(UI_SEQUENCE_NOTE_UNIT_WIDTH * numUnits_, UI_SEQUENCE_NOTE_UNIT_HEIGHT);
     }
 }
 
@@ -78,28 +61,19 @@ void SequenceNote::setStartIndex(int idx){
     startTime_ = idx ;
 }
 
-void SequenceNote::draggedCallback(BEvents::Event* event){
-    if ( !event ) return ;
-    if ( event->getEventType() != BEvents::Event::EventType::pointerDragEvent ) return ;
+bool SequenceNote::isDragMode() const {
+    return dragEdit_ ;
+}
 
-    BEvents::PointerEvent* ev = dynamic_cast<BEvents::PointerEvent*>(event);
+void SequenceNote::setDragMode(bool dragged){
+    dragEdit_ = dragged ;
+}
 
-    // keep track of how many units the pointer has been dragged
-    BUtilities::Point pos = ev->getPosition();
-    dragEdit_ = true ;
-    dragUnits_ = std::round(pos.x / unitSize_.first) ;
+void SequenceNote::setDragTimeUnits(int units){
+    dragUnits_ = units ;
 }
 
 
-void SequenceNote::unclickedCallback(BEvents::Event* event){
-    if( !event ) return ;
-    if ( event->getEventType() != BEvents::Event::EventType::buttonReleaseEvent ) return ;
-
-    BEvents::PointerEvent* ev = dynamic_cast<BEvents::PointerEvent*>(event);
-
-    // otherwise, check to see if this event comes with an unclick action
-    if (dragEdit_ && ev->getButton() == BDevices::MouseButton::ButtonType::left ){
-        dragEdit_ = false ;
-        setNumUnits(dragUnits_);
-    }
+void SequenceNote::updateToDragTime(){
+    setNumUnits(dragUnits_) ;
 }
