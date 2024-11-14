@@ -21,19 +21,13 @@ private:
     int startTime_ ; // time index for start of note
 
     bool dragEdit_ ; // track if we are in drag edit mode across BEvents
-    int dragUnits_ ; // track the new number of units present across drag actions
 
 public:
     // Constructors
 
     SequenceNote();
 
-    SequenceNote(
-        double x, double y,
-        double width = UI_SEQUENCE_NOTE_UNIT_WIDTH,
-        double height = UI_SEQUENCE_NOTE_UNIT_HEIGHT,
-        int nUnits = 1
-    );
+    SequenceNote(double x, double y, int nUnits = 1);
 
     /**
      * @brief get position

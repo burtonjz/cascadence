@@ -5,13 +5,12 @@
 #include "BStyles/Types/Fill.hpp"
 #include "ui/uiConfig.hpp"
 
-SequenceNote::SequenceNote(double x, double y, double width, double height, int nUnits):
+SequenceNote::SequenceNote(double x, double y, int nUnits):
     Button(),
     pos_(x,y),
     noteIndex_(0),
     startTime_(0),
-    dragEdit_(false),
-    dragUnits_(0)
+    dragEdit_(false)
 {
     // set properties
     setActivatable(true);

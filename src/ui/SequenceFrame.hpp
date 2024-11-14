@@ -33,7 +33,7 @@ class SequenceFrame :
 private:
     std::string bundlePath_ ;
     // BWidgets::Image wBgImage_ ;
-    std::array<BWidgets::Label, 13> noteLabels_ ; // contain full chromatic scale including octave
+    // std::array<BWidgets::Label, 13> noteLabels_ ; // contain full chromatic scale including octave
     std::array<SequenceNote,CONFIG_MAX_SEQUENCE_SIZE> notes_ ;
     BEvents::Event::EventType lastFrameEvent_ ;
 

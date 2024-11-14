@@ -42,4 +42,7 @@ constexpr int UI_SEQUENCE_FRAME_LABEL_HEIGHT = 50 ;
 constexpr int UI_SEQUENCE_NOTE_UNIT_WIDTH  = 50 ;
 constexpr int UI_SEQUENCE_NOTE_UNIT_HEIGHT = 50 ;
 
+constexpr int UI_SEQUENCE_FRAME_NUM_NOTES = 13 ;
+constexpr int UI_SEQUENCE_MAX_TIME_UNITS = 16 ;
+
 #endif // __UI_CONFIG_HPP_

@@ -10,22 +10,21 @@
 SequenceFrame::SequenceFrame(std::string bundlePath, const double x, const double y, const double width, const double height):
     Frame(x,y, width, height),
     bundlePath_(bundlePath),
-    noteLabels_(),
     notes_()
 {
     // define frame properties
     setClickable(true);
     setDraggable(false);
 
-    // define labels
-    for ( size_t i = 0; i < noteLabels_.size(); ++i ){
-        add(&noteLabels_[i]);
-        double ypos = UI_SEQUENCE_FRAME_HEIGHT - UI_SEQUENCE_FRAME_LABEL_HEIGHT * (i + 1);
-        noteLabels_[i].moveTo(0,ypos);
-        noteLabels_[i].resize(UI_SEQUENCE_FRAME_LABEL_WIDTH, UI_SEQUENCE_FRAME_LABEL_HEIGHT);
-        noteLabels_[i].setText(std::to_string(i));
+    // // define labels
+    // for ( size_t i = 0; i < noteLabels_.size(); ++i ){
+    //     add(&noteLabels_[i]);
+    //     double ypos = UI_SEQUENCE_FRAME_HEIGHT - UI_SEQUENCE_FRAME_LABEL_HEIGHT * (i + 1);
+    //     noteLabels_[i].moveTo(0,ypos);
+    //     noteLabels_[i].resize(UI_SEQUENCE_FRAME_LABEL_WIDTH, UI_SEQUENCE_FRAME_LABEL_HEIGHT);
+    //     noteLabels_[i].setText(std::to_string(i));
 
-    }
+    // }
 
     // prep SequenceNotes. All are hidden and off screen until click action executed
     for ( size_t i = 0; i < notes_.size(); ++i ){
@@ -119,7 +118,7 @@ void SequenceFrame::populateNote(BEvents::PointerEvent* ev){
         auto dest = getNearestSlotPoint(pt);
         notes_[i].setStartIndex(dest.x);
         notes_[i].setNoteIndex(dest.y);
-        pt.x = static_cast<int>(dest.x) * UI_SEQUENCE_NOTE_UNIT_WIDTH + UI_SEQUENCE_FRAME_LABEL_WIDTH ;
+        pt.x = static_cast<int>(dest.x) * UI_SEQUENCE_NOTE_UNIT_WIDTH ;
         pt.y = UI_SEQUENCE_FRAME_HEIGHT - UI_SEQUENCE_NOTE_UNIT_HEIGHT * (static_cast<int>(dest.y) + 1);
         notes_[i].setPosition(pt);
         notes_[i].show();
@@ -142,8 +141,6 @@ void SequenceFrame::setActiveNote(SequenceNote* note){
 }
 
 SequenceNote* SequenceFrame::getNoteAtPoint(BUtilities::Point<> pt){
-    if (pt.x <= UI_SEQUENCE_FRAME_LABEL_WIDTH ) return nullptr ;
-
     for ( size_t i = 0 ; i < notes_.size() ; ++i ){
         if ( notes_[i].isVisible() ){
             BUtilities::Point<> np = notes_[i].getPosition() ;
@@ -159,8 +156,7 @@ SequenceNote* SequenceFrame::getNoteAtPoint(BUtilities::Point<> pt){
 }
 
 BUtilities::Point<> SequenceFrame::getNearestSlotPoint(BUtilities::Point<> pt) const {
-    pt.x = ( pt.x - UI_SEQUENCE_FRAME_LABEL_WIDTH ) / UI_SEQUENCE_NOTE_UNIT_WIDTH ;
-    pt.y = noteLabels_.size() - 1 - static_cast<int>( pt.y / UI_SEQUENCE_NOTE_UNIT_HEIGHT) ;
-
+    pt.x = pt.x / UI_SEQUENCE_NOTE_UNIT_WIDTH ;
+    pt.y = UI_SEQUENCE_FRAME_NUM_NOTES - 1 - static_cast<int>( pt.y / UI_SEQUENCE_NOTE_UNIT_HEIGHT) ;
     return pt ;
 }
