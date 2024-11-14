@@ -101,22 +101,12 @@ public:
      */
     void setDragMode(bool dragged);
 
-    /**
-     * @brief set the dragged time units quantity
-     *
-     * @param units number of time units.
-     */
-    void setDragTimeUnits(int units) ;
-
-    /**
-     * @brief update the note time units to the dragged value
-     *
-     */
-    void updateToDragTime();
-
+private:
+    // override BWidgets::Button Button press logic to support more nuanced toggling
+    void onButtonPressed (BEvents::Event* event) override ;
+    void onButtonReleased (BEvents::Event* event) override ;
+    void onButtonClicked (BEvents::Event* event) override ;
 
 };
-
-
 
 #endif // __SEQUENCE_NOTE_HPP

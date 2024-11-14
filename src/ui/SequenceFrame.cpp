@@ -3,7 +3,9 @@
 #include "BEvents/PointerEvent.hpp"
 #include "ui/uiConfig.hpp"
 // #include "BStyles/Types/Fill.hpp"
+#include <cstdint>
 #include <string>
+#include <sys/types.h>
 
 SequenceFrame::SequenceFrame(std::string bundlePath, const double x, const double y, const double width, const double height):
     Frame(x,y, width, height),
@@ -36,8 +38,8 @@ SequenceFrame::SequenceFrame(std::string bundlePath, const double x, const doubl
         );
 
         notes_[i].setCallbackFunction(
-            BEvents::Event::EventType::buttonReleaseEvent,
-            [this](BEvents::Event* ev){noteClickedCallback(ev);}
+            BEvents::Event::EventType::buttonEvents,
+            [this](BEvents::Event* ev){noteButtonCallback(ev);}
         );
     }
 
@@ -46,41 +48,18 @@ SequenceFrame::SequenceFrame(std::string bundlePath, const double x, const doubl
 
     // set frame callback functions
     setCallbackFunction(
-        BEvents::Event::EventType::buttonClickEvent,
+        BEvents::Event::EventType::buttonPressEvent,
         [this](BEvents::Event* ev){frameClickedCallback(ev);}
     );
 }
 
 void SequenceFrame::frameClickedCallback(BEvents::Event* event){
     if ( !event ) return ;
-    if ( event->getEventType() != BEvents::Event::EventType::buttonClickEvent ) return ;
+    if ( static_cast<uint32_t>(event->getEventType()) & static_cast<uint32_t>(BEvents::Event::EventType::pointerEvents) ) return ;
 
     BEvents::PointerEvent* ev = dynamic_cast<BEvents::PointerEvent*>(event) ;
 
-    if ( ev->getButton() != BDevices::MouseButton::ButtonType::left ) return ;
-
-    auto pt = ev->getPosition() ;
-    if ( clickedEmptySlot(pt) ){
-        size_t i = 0 ;
-        for ( ; i < notes_.size() ; ++i ){
-            if ( ! notes_[i].isVisible() ) break ;
-        }
-        if ( i == notes_.size() - 1 ){
-            std::cout << "[CascadenceUI::SequenceFrame] Cannot add new note, hit max capacity." << std::endl ;
-            return ;
-        }
-
-        // populate the note
-        std::cout << "point_clicked: " << pt.x << ", " << pt.y ;
-        auto dest = getNearestSlotPoint(pt);
-        notes_[i].setStartIndex(dest.x);
-        notes_[i].setNoteIndex(dest.y);
-        pt.x = static_cast<int>(dest.x) * UI_SEQUENCE_NOTE_UNIT_WIDTH + UI_SEQUENCE_FRAME_LABEL_WIDTH ;
-        pt.y = UI_SEQUENCE_FRAME_HEIGHT - UI_SEQUENCE_NOTE_UNIT_HEIGHT * (static_cast<int>(dest.y) + 1);
-        std::cout << ", start_index: " << dest.x << ", note_index: " << dest.y << ", dest_point: " << pt.x << ", " << pt.y << std::endl ;
-        notes_[i].setPosition(pt);
-        notes_[i].show();
-    }
+    if ( ev->getButton() == BDevices::MouseButton::ButtonType::left ) populateNote(ev) ;
 }
 
 void SequenceFrame::noteDraggedCallback(BEvents::Event* event){
@@ -91,28 +70,79 @@ void SequenceFrame::noteDraggedCallback(BEvents::Event* event){
     SequenceNote* note = dynamic_cast<SequenceNote*>(ev->getWidget());
 
     // keep track of how many units the pointer has been dragged
+    if ( !note->isDragMode() ){
+        note->setDragMode(true) ;
+    }
+
     BUtilities::Point pos = ev->getPosition();
-    note->setDragMode(true) ;
-    note->setDragTimeUnits(std::round(pos.x / UI_SEQUENCE_NOTE_UNIT_WIDTH));
+    note->setNumUnits(std::round(pos.x / UI_SEQUENCE_NOTE_UNIT_WIDTH));
+    emitExposeEvent();
 }
 
 
-void SequenceFrame::noteClickedCallback(BEvents::Event* event){
+void SequenceFrame::noteButtonCallback(BEvents::Event* event){
     if( !event ) return ;
-    if ( event->getEventType() != BEvents::Event::EventType::buttonReleaseEvent ) return ;
 
     BEvents::PointerEvent* ev = dynamic_cast<BEvents::PointerEvent*>(event);
     SequenceNote* note = dynamic_cast<SequenceNote*>(ev->getWidget());
+    switch(event->getEventType()){
+    case BEvents::Event::EventType::buttonClickEvent:
+        if (!note->getValue()) setActiveNote(note);
+        else note->setValue(false);
+        break ;
+    case BEvents::Event::EventType::buttonPressEvent:
+        break ;
+    case BEvents::Event::EventType::buttonReleaseEvent:
+        break ;
+    default:
+        break ;
+    }
+    if ( event->getEventType() == BEvents::Event::EventType::buttonReleaseEvent ) {
 
-    // otherwise, check to see if this event comes with an unclick action
-    if (note->isDragMode() && ev->getButton() == BDevices::MouseButton::ButtonType::left ){
-        note->setDragMode(false) ;
-        note->updateToDragTime();
     }
 }
 
-bool SequenceFrame::clickedEmptySlot(BUtilities::Point<> pt) const {
-    if (pt.x <= UI_SEQUENCE_FRAME_LABEL_WIDTH ) return false ;
+void SequenceFrame::populateNote(BEvents::PointerEvent* ev){
+    auto pt = ev->getPosition() ;
+    SequenceNote* note = getNoteAtPoint(pt);
+    if (!note){
+        size_t i = 0 ;
+        for ( ; i < notes_.size() ; ++i ){
+            if ( ! notes_[i].isVisible() ) break ;
+        }
+        if ( i == notes_.size() - 1 ){
+            std::cout << "[CascadenceUI::SequenceFrame] Cannot add new note, hit max capacity." << std::endl ;
+            return ;
+        }
+
+        // populate the note
+        auto dest = getNearestSlotPoint(pt);
+        notes_[i].setStartIndex(dest.x);
+        notes_[i].setNoteIndex(dest.y);
+        pt.x = static_cast<int>(dest.x) * UI_SEQUENCE_NOTE_UNIT_WIDTH + UI_SEQUENCE_FRAME_LABEL_WIDTH ;
+        pt.y = UI_SEQUENCE_FRAME_HEIGHT - UI_SEQUENCE_NOTE_UNIT_HEIGHT * (static_cast<int>(dest.y) + 1);
+        notes_[i].setPosition(pt);
+        notes_[i].show();
+        setActiveNote(i);
+
+    }
+}
+
+void SequenceFrame::setActiveNote(size_t i){
+    for (size_t j = 0 ; j < notes_.size() ; ++j){
+        if ( notes_[j].isVisible() && j != i ) notes_[j].setValue(false);
+    }
+    notes_[i].setValue(true);
+}
+void SequenceFrame::setActiveNote(SequenceNote* note){
+    for (size_t j = 0 ; j < notes_.size() ; ++j){
+        if ( notes_[j].isVisible() && &notes_[j] != note ) notes_[j].setValue(false);
+    }
+    note->setValue(true);
+}
+
+SequenceNote* SequenceFrame::getNoteAtPoint(BUtilities::Point<> pt){
+    if (pt.x <= UI_SEQUENCE_FRAME_LABEL_WIDTH ) return nullptr ;
 
     for ( size_t i = 0 ; i < notes_.size() ; ++i ){
         if ( notes_[i].isVisible() ){
@@ -121,11 +151,11 @@ bool SequenceFrame::clickedEmptySlot(BUtilities::Point<> pt) const {
                 np.x < pt.x && pt.x < np.x + notes_[i].getNumUnits() * UI_SEQUENCE_NOTE_UNIT_WIDTH &&
                 np.y < pt.y && pt.y < np.y + UI_SEQUENCE_NOTE_UNIT_HEIGHT
             ){
-                return false ;
+                return &notes_[i] ;
             }
         }
     }
-    return true ;
+    return nullptr ;
 }
 
 BUtilities::Point<> SequenceFrame::getNearestSlotPoint(BUtilities::Point<> pt) const {

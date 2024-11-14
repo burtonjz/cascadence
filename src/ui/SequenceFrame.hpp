@@ -35,6 +35,7 @@ private:
     // BWidgets::Image wBgImage_ ;
     std::array<BWidgets::Label, 13> noteLabels_ ; // contain full chromatic scale including octave
     std::array<SequenceNote,CONFIG_MAX_SEQUENCE_SIZE> notes_ ;
+    BEvents::Event::EventType lastFrameEvent_ ;
 
 public:
     /**
@@ -57,11 +58,11 @@ public:
     /**
      * @brief callback function for clicking action
      *
-     * @param event Passed Event.
+     * @param event Passed event
      */
     void frameClickedCallback(BEvents::Event* event);
 
-        /**
+    /**
      * @brief callback function for dragging action
      *
      * @param event Passed Event.
@@ -69,14 +70,19 @@ public:
     void noteDraggedCallback(BEvents::Event* event);
 
     /**
-     * @brief callback function for clicking action
+     * @brief callback function for note button pressing actions
      *
      * @param event Passed Event.
      */
-    void noteClickedCallback(BEvents::Event* event);
+    void noteButtonCallback(BEvents::Event* event);
 
 private:
-    bool clickedEmptySlot(BUtilities::Point<> pt) const ;
+    void populateNote(BEvents::PointerEvent* ev) ;
+
+    void setActiveNote(size_t i);
+    void setActiveNote(SequenceNote* note);
+
+    SequenceNote* getNoteAtPoint(BUtilities::Point<> pt);
 
     BUtilities::Point<> getNearestSlotPoint(BUtilities::Point<> pt) const ;
 };
