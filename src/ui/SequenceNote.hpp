@@ -20,8 +20,6 @@ private:
     int noteIndex_ ; // note index for sequence pattern
     int startTime_ ; // time index for start of note
 
-    bool dragEdit_ ; // track if we are in drag edit mode across BEvents
-
 public:
     // Constructors
 
@@ -81,19 +79,6 @@ public:
      * @param idx start time unit index
      */
     void setStartIndex(int idx);
-
-    /**
-     * @brief return whether the note is in drag mode
-     *
-     */
-    bool isDragMode() const ;
-
-    /**
-     * @brief set the drag edit mode
-     *
-     * @param dragged
-     */
-    void setDragMode(bool dragged);
 
 private:
     // override BWidgets::Button Button press logic to support more nuanced toggling

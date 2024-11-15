@@ -9,8 +9,7 @@ SequenceNote::SequenceNote(double x, double y, int nUnits):
     Button(),
     pos_(x,y),
     noteIndex_(0),
-    startTime_(0),
-    dragEdit_(false)
+    startTime_(0)
 {
     // set properties
     setActivatable(true);
@@ -45,25 +44,8 @@ int SequenceNote::getNumUnits() const {
 }
 
 void SequenceNote::setNumUnits(int units){
-    std::cout << "units=" << units << std::endl ;
-    if ( units == 0 ) units = 1 ;
-    if ( units > 0 ){
-        numUnits_ = units ;
-        resize(UI_SEQUENCE_NOTE_UNIT_WIDTH * numUnits_, UI_SEQUENCE_NOTE_UNIT_HEIGHT);
-    } else {
-        // start point + WiDTH becomes end point,
-        auto newPos = getPosition();
-        newPos.x = newPos.x - UI_SEQUENCE_NOTE_UNIT_WIDTH * abs(units);
-        // handle going over origin
-        if (newPos.x < UI_SEQUENCE_FRAME_LABEL_WIDTH){
-            newPos.x = UI_SEQUENCE_FRAME_LABEL_WIDTH ;
-            units = static_cast<int>((pos_.x - newPos.x) / UI_SEQUENCE_NOTE_UNIT_WIDTH );
-        }
-
-        setPosition(newPos);
-        numUnits_ = abs(units) + 1 ;
-        resize(UI_SEQUENCE_NOTE_UNIT_WIDTH * numUnits_, UI_SEQUENCE_NOTE_UNIT_HEIGHT);
-    }
+    numUnits_ = units ;
+    resize(UI_SEQUENCE_NOTE_UNIT_WIDTH * numUnits_, UI_SEQUENCE_NOTE_UNIT_HEIGHT);
 }
 
 int SequenceNote::getNoteIndex() const {
@@ -80,14 +62,6 @@ int SequenceNote::getStartIndex() const {
 
 void SequenceNote::setStartIndex(int idx){
     startTime_ = idx ;
-}
-
-bool SequenceNote::isDragMode() const {
-    return dragEdit_ ;
-}
-
-void SequenceNote::setDragMode(bool dragged){
-    dragEdit_ = dragged ;
 }
 
 inline void SequenceNote::onButtonPressed (BEvents::Event* event)

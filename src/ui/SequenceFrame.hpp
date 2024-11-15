@@ -24,6 +24,12 @@ TODO:
 - callback to send data to backend
 - maybe a save/edit button so we aren't sending in real time?
 */
+enum class DragMode {
+    DRAG_LEFT,
+    DRAG_RIGHT,
+    DRAG_OFF,
+    DRAG_NA
+};
 
 class SequenceFrame :
     public BWidgets::Frame,
@@ -32,10 +38,9 @@ class SequenceFrame :
 
 private:
     std::string bundlePath_ ;
-    // BWidgets::Image wBgImage_ ;
     // std::array<BWidgets::Label, 13> noteLabels_ ; // contain full chromatic scale including octave
     std::array<SequenceNote,CONFIG_MAX_SEQUENCE_SIZE> notes_ ;
-    BEvents::Event::EventType lastFrameEvent_ ;
+    DragMode dragMode_ ;
 
 public:
     /**
@@ -55,6 +60,7 @@ public:
         const double height = UI_SEQUENCE_FRAME_HEIGHT
     );
 
+    // CALLBACK FUNCTIONS
     /**
      * @brief callback function for clicking action
      *
@@ -76,11 +82,16 @@ public:
      */
     void noteButtonCallback(BEvents::Event* event);
 
+
 private:
     void populateNote(BEvents::PointerEvent* ev) ;
 
     void setActiveNote(size_t i);
     void setActiveNote(SequenceNote* note);
+
+    void setNoteDragMode(SequenceNote* note, BUtilities::Point<> pt);
+    void updateNoteDragLeft(SequenceNote* note, BUtilities::Point<> pt);
+    void updateNoteDragRight(SequenceNote* note, BUtilities::Point<> pt);
 
     SequenceNote* getNoteAtPoint(BUtilities::Point<> pt);
 

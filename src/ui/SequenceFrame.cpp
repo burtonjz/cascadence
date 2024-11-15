@@ -10,7 +10,8 @@
 SequenceFrame::SequenceFrame(std::string bundlePath, const double x, const double y, const double width, const double height):
     Frame(x,y, width, height),
     bundlePath_(bundlePath),
-    notes_()
+    notes_(),
+    dragMode_(DragMode::DRAG_OFF)
 {
     // define frame properties
     setClickable(true);
@@ -68,14 +69,21 @@ void SequenceFrame::noteDraggedCallback(BEvents::Event* event){
     BEvents::PointerEvent* ev = dynamic_cast<BEvents::PointerEvent*>(event);
     SequenceNote* note = dynamic_cast<SequenceNote*>(ev->getWidget());
 
-    // keep track of how many units the pointer has been dragged
-    if ( !note->isDragMode() ){
-        note->setDragMode(true) ;
-    }
-
     BUtilities::Point pos = ev->getPosition();
-    note->setNumUnits(std::round(pos.x / UI_SEQUENCE_NOTE_UNIT_WIDTH));
-    emitExposeEvent();
+
+    switch ( dragMode_ ){
+    case DragMode::DRAG_OFF:
+        setNoteDragMode(note, pos);
+        break ;
+    case DragMode::DRAG_LEFT:
+        updateNoteDragLeft(note,pos);
+        break ;
+    case DragMode::DRAG_RIGHT:
+        updateNoteDragRight(note,pos);
+        break ;
+    case DragMode::DRAG_NA:
+        break ;
+    }
 }
 
 
@@ -92,6 +100,7 @@ void SequenceFrame::noteButtonCallback(BEvents::Event* event){
     case BEvents::Event::EventType::buttonPressEvent:
         break ;
     case BEvents::Event::EventType::buttonReleaseEvent:
+        dragMode_ = DragMode::DRAG_OFF ;
         break ;
     default:
         break ;
@@ -138,6 +147,72 @@ void SequenceFrame::setActiveNote(SequenceNote* note){
         if ( notes_[j].isVisible() && &notes_[j] != note ) notes_[j].setValue(false);
     }
     note->setValue(true);
+}
+
+void SequenceFrame::setNoteDragMode(SequenceNote* note, BUtilities::Point<> pt){
+    double buffer = .2 ; // 20% of units closeness to edge
+
+    if ( pt.x <  UI_SEQUENCE_NOTE_UNIT_WIDTH * buffer ){
+        dragMode_ = DragMode::DRAG_LEFT ;
+        return ;
+    }
+
+    double rightSideX = UI_SEQUENCE_NOTE_UNIT_WIDTH * note->getNumUnits() ;
+    if ( pt.x > rightSideX - UI_SEQUENCE_NOTE_UNIT_WIDTH * buffer ){
+        dragMode_ = DragMode::DRAG_RIGHT ;
+        return ;
+    }
+
+    // just a random drag
+    dragMode_ = DragMode::DRAG_NA ;
+}
+
+void SequenceFrame::updateNoteDragLeft(SequenceNote* note, BUtilities::Point<> pt){
+    double relRightX = UI_SEQUENCE_NOTE_UNIT_WIDTH * note->getNumUnits() ;
+    if ( pt.x > relRightX ) return ;
+
+    int dUnits = std::round(pt.x / UI_SEQUENCE_NOTE_UNIT_WIDTH);
+    if ( dUnits == 0 ) return ;
+
+    auto newPos = note->getPosition() ; // position relative to frame
+    newPos.x += UI_SEQUENCE_NOTE_UNIT_WIDTH * dUnits;
+
+    // handle left boundary
+    if (newPos.x < 0 ){
+        newPos.x = 0 ;
+    }
+
+    int absLeftUnits = newPos.x / UI_SEQUENCE_NOTE_UNIT_WIDTH ;
+    int absRightUnits = (note->getPosition().x + relRightX) / UI_SEQUENCE_NOTE_UNIT_WIDTH ;
+    int newUnits = absRightUnits - absLeftUnits ;
+
+    std::cout << "pos.x=" << note->getPosition().x
+        << ", newPos.x=" << newPos.x
+        << ", pt.x=" << pt.x
+        << ", nUnits=" << note->getNumUnits()
+        << ", dUnits=" << dUnits
+        << ", absLeftUnits=" << absLeftUnits
+        << ", absRightUnits=" << absRightUnits
+        << ", newUnits=" << newUnits
+        << std::endl ;
+
+    if (newUnits > 0){
+        note->setPosition(newPos);
+        note->setNumUnits(newUnits);
+        emitExposeEvent();
+    }
+}
+
+void SequenceFrame::updateNoteDragRight(SequenceNote* note, BUtilities::Point<> pt){
+    if ( pt.x < 0 ) return ;
+    int originIndexInUnits = note->getPosition().x / UI_SEQUENCE_NOTE_UNIT_WIDTH ;
+    int newUnits = std::round(pt.x / UI_SEQUENCE_NOTE_UNIT_WIDTH) ;
+    // handle right boundary
+    if (originIndexInUnits + newUnits > UI_SEQUENCE_MAX_TIME_UNITS){
+        newUnits = UI_SEQUENCE_MAX_TIME_UNITS - originIndexInUnits ;
+    }
+    if (newUnits > 0) note->setNumUnits(newUnits);
+    emitExposeEvent();
 }
 
 SequenceNote* SequenceFrame::getNoteAtPoint(BUtilities::Point<> pt){
