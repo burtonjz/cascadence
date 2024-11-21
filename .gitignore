@@ -1,7 +1,5 @@
 .vscode
 .clang-tidy
-.gitignore
-.gitmodules
 build
 TODO
 test
